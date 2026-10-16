@@ -9,8 +9,8 @@
     }
   ],
   "godotProjectFolder": "",
-  "ltoMode": "none",
-  "selectedBuildProfile": "2d_build_profile.json",
+  "ltoMode": "auto",
+  "selectedBuildProfile": "only_necessary.json",
   "extensionApiPath": "godot-cpp/gdextension/extension_api-4-7.json",
   "reloadable": true,
   "editorTargetMode": "debug",

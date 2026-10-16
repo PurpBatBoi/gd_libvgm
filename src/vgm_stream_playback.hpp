@@ -3,6 +3,7 @@
 #include <mutex>
 #include <vector>
 
+#include <godot_cpp/classes/audio_frame.hpp>
 #include <godot_cpp/classes/audio_stream_playback_resampled.hpp>
 
 #include "vgm_song.hpp"
@@ -28,7 +29,7 @@ public:
 	int32_t _get_loop_count() const override;
 	double _get_playback_position() const override;
 	void _seek(double p_position) override;
-	int32_t _mix_resampled(AudioFrame *p_dst_buffer, int32_t p_frame_count) override;
+	int32_t _mix_resampled(AudioFrame *p_dst_buffer, int32_t p_frame_count);
 	float _get_stream_sampling_rate() const override;
 	void _set_parameter(const StringName &p_name, const Variant &p_value) override;
 	Variant _get_parameter(const StringName &p_name) const override;
