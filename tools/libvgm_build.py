@@ -40,6 +40,8 @@ def add_libvgm(env: Any) -> list[Any]:
     env.Append(CPPPATH=[str(LIBVGM_DIR), str(LIBVGM_DIR / "libs/blep_filter")], CPPDEFINES=["VGM_LITTLE_ENDIAN", "HAVE_STDINT_H"])
     if env["platform"] in ("macos", "ios"):
         env.Append(LIBS=["iconv"])
+    elif env["platform"] == "windows":
+        env.Append(LIBS=["advapi32"])  # Registry API used by StrUtils-CPConv_Win.c.
 
     # Third-party C90/C++98 code: silence warnings; ymfm needs C++14 and libvgm uses `register` (removed in C++17).
     vgm_env = env.Clone()
