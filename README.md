@@ -27,13 +27,14 @@ For music that keeps playing across scenes, put the player in an autoload scene.
 
 ## Supported chips
 
-Only chips with a permissively licensed (MIT / BSD-3-Clause) emulation core are built in. A song that uses any other chip fails to load, with an error naming the chip.
+Only chips with a permissively licensed (MIT / BSD-3-Clause / ISC) emulation core are built in. A song that uses any other chip fails to load, with an error naming the chip.
 
 | Chip | Used in | Cores |
 |---|---|---|
 | SN76489 / SN76496 | Master System, Game Gear, Genesis PSG, BBC Micro | MAME |
 | AY-3-8910 / YM2149 | MSX, ZX Spectrum, Atari ST, Amstrad CPC | MAME |
 | YM2413 (OPLL) | Master System FM, MSX-MUSIC, VRC7 | EMU2413 |
+| YM2612 / YM3438 | Genesis / Mega Drive FM | ares |
 | HuC6280 | PC Engine / TurboGrafx-16 | MAME |
 | Game Boy DMG | Game Boy | MAME |
 | NES APU + FDS | NES / Famicom, Famicom Disk System | apu2a03 |
@@ -61,7 +62,7 @@ Only chips with a permissively licensed (MIT / BSD-3-Clause) emulation core are 
 | BSMT2000 | Data East / pinball | MAME |
 | Mikey | Atari Lynx | laoo |
 
-**Not supported for now:** YM2612 / YM3438, YM2151, YM2203 / YM2608 / YM2610, YM3812 / YM3526 / Y8950, YMF262, YMF278B, 32X PWM, Virtual Boy VSU, MSM5232, ES5505 / ES5506, WonderSwan. Their only cores are GPL, LGPL or unlicensed. This rules out GYM files (YM2612) and DRO files (OPL) entirely, and most Genesis, arcade FM and PC-98 VGMs.
+**Not supported for now:** YM2151, YM2203 / YM2608 / YM2610, YM3812 / YM3526 / Y8950, YMF262, YMF278B, 32X PWM, Virtual Boy VSU, MSM5232, ES5505 / ES5506, WonderSwan. Their only cores are GPL, LGPL or unlicensed. This rules out DRO files (OPL) entirely, and most arcade FM and PC-98 VGMs.
 
 Licenses and source files per core: [PERMISSIVE_CORES.md](PERMISSIVE_CORES.md).
 
