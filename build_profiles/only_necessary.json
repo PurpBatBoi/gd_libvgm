@@ -2,6 +2,7 @@
     "_": "Auto-generated custom build profile based on detected classes from code usage.",
     "type": "feature_profile",
     "enabled_classes": [
+        "AudioFrame",
         "AudioServer",
         "AudioStream",
         "AudioStreamPlayback",
