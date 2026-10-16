@@ -1,0 +1,55 @@
+// Include your classes, that you want to expose to Godot
+#include "resource_format_loader_vgm.hpp"
+#include "vgm_project_settings.hpp"
+#include "vgm_stream.hpp"
+#include "vgm_stream_playback.hpp"
+
+#include <gdextension_interface.h>
+#include <godot_cpp/classes/resource_loader.hpp>
+#include <godot_cpp/core/class_db.hpp>
+#include <godot_cpp/core/defs.hpp>
+#include <godot_cpp/godot.hpp>
+
+using namespace godot;
+
+static Ref<ResourceFormatLoaderVGM> vgm_loader;
+
+void initialize_gdextension_types(ModuleInitializationLevel p_level)
+{
+	if (p_level != MODULE_INITIALIZATION_LEVEL_SCENE) {
+		return;
+	}
+
+	// Register your classes here, so they are available in the Godot editor and engine
+	GDREGISTER_CLASS(VGMStream)
+	GDREGISTER_CLASS(VGMStreamPlayback)
+	GDREGISTER_INTERNAL_CLASS(ResourceFormatLoaderVGM)
+
+	VGMProjectSettings::initialize();
+	vgm_loader.instantiate();
+	ResourceLoader::get_singleton()->add_resource_format_loader(vgm_loader);
+}
+
+void uninitialize_gdextension_types(ModuleInitializationLevel p_level) {
+	if (p_level != MODULE_INITIALIZATION_LEVEL_SCENE) {
+		return;
+	}
+
+	ResourceLoader::get_singleton()->remove_resource_format_loader(vgm_loader);
+	vgm_loader.unref();
+	VGMProjectSettings::uninitialize();
+}
+
+extern "C"
+{
+	// Initialization
+	GDExtensionBool GDE_EXPORT gd_libvgm_init(GDExtensionInterfaceGetProcAddress p_get_proc_address, GDExtensionClassLibraryPtr p_library, GDExtensionInitialization *r_initialization)
+	{
+		GDExtensionBinding::InitObject init_obj(p_get_proc_address, p_library, r_initialization);
+		init_obj.register_initializer(initialize_gdextension_types);
+		init_obj.register_terminator(uninitialize_gdextension_types);
+		init_obj.set_minimum_library_initialization_level(MODULE_INITIALIZATION_LEVEL_SCENE);
+
+		return init_obj.init();
+	}
+}

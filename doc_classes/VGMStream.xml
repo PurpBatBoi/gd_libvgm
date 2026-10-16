@@ -1,0 +1,214 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<class name="VGMStream" inherits="AudioStream" api_type="extension" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/godotengine/godot/master/doc/class.xsd">
+	<brief_description>
+		Plays sound chip music logs (VGM/VGZ, S98, DRO, GYM) by emulating the original sound chips with libvgm.
+	</brief_description>
+	<description>
+		Files with the extensions [code].vgm[/code], [code].vgz[/code], [code].s98[/code], [code].dro[/code] and [code].gym[/code] load as [VGMStream] resources: assign one to an [AudioStreamPlayer] (or 2D/3D variant), or [method @GDScript.load] it from a script. Songs that use a chip with no permissively licensed core in this build (such as the YM2612 or the OPL family) fail to load.
+		All settings live on the stream and apply live to every playback of it: [member speed], [member loop_count], [member fade_time], [member ignore_song_volume], [member resampler_mode], and for each sound chip (a "device") its emulation option bits, channel muting and channel panning. To give players of the same song different values without [method Resource.duplicate], use the stream parameters below.
+		In the inspector, each chip of the song has its own group with a checkbox per channel to mute it, its named emulation options (filters and other flags) and, when the chip's emulation supports it, a pan slider per channel. These are dynamic properties named [code]chip_&lt;index&gt;_muted_channels[/code], [code]chip_&lt;index&gt;_options[/code] and [code]chip_&lt;index&gt;_pan_&lt;channel&gt;[/code]; the methods below do the same from scripts.
+		[codeblock]
+		var song: VGMStream = load("res://music/stage1.vgz")
+		$AudioStreamPlayer.stream = song
+		$AudioStreamPlayer.play()
+		song.speed = 1.25                  # Faster tempo, same pitch.
+		song.set_channel_muted(0, 2, true) # Mute channel 3 of the first chip.
+		[/codeblock]
+		[b]Per-player parameters:[/b] every [AudioStreamPlayer] showing a [VGMStream] has a [b]Parameters[/b] section (Godot 4.3 and later), kept by that player alone:
+		- [code]parameters/speed[/code]: multiplies [member speed]. Default [code]1.0[/code].
+		- [code]parameters/chip_&lt;index&gt;_muted_channels[/code]: channels of that chip to mute, as a bit mask. They are muted in addition to the channels muted on the stream: a player can mute more, but cannot unmute what the stream mutes.
+		[codeblock]
+		$PlayerA.set("parameters/speed", 2.0)
+		$PlayerB.set("parameters/chip_0_muted_channels", 0b100) # Mute channel 3 of the first chip, on this player only.
+		[/codeblock]
+		[b]Song info:[/b] [member format], [member format_version], [member loop_start], [member loop_length] and [method get_device_clock] describe the file. Loop and fade events are signals of [VGMStreamPlayback].
+		[member loop_count], [member fade_time], [member ignore_song_volume] and [member resampler_mode] follow the project-wide defaults in [b]Project Settings &gt; Libvgm Settings[/b] ([code]libvgm_settings/*[/code]) until they are set on the stream. Setting one to the project's value, or reverting it in the inspector, makes it follow the project setting again.
+		Pitch is changed with [member AudioStreamPlayer.pitch_scale]. General filtering (low-pass, high-pass, EQ) is done with audio bus effects such as [AudioEffectLowPassFilter]; [VGMStream] exposes the filtering that is part of the chip emulation (see [method set_device_core_options] and the [code]CORE_OPTION_*[/code] constants).
+		[b]Note:[/b] Settings changed in the inspector on a stream loaded directly from a [code].vgm[/code] file are not saved back into that file. Set them from a script, or save the stream as a [code].tres[/code] resource, which stores the song data and the settings.
+	</description>
+	<tutorials>
+	</tutorials>
+	<methods>
+		<method name="get_channel_names" qualifiers="const">
+			<return type="PackedStringArray" />
+			<param index="0" name="device" type="int" />
+			<description>
+				Returns the channel names of [param device]. The array index is the channel index used by [method set_channel_muted].
+			</description>
+		</method>
+		<method name="get_channel_pan" qualifiers="const">
+			<return type="float" />
+			<param index="0" name="device" type="int" />
+			<param index="1" name="channel" type="int" />
+			<description>
+				Returns the stereo position of [param channel] of [param device], from [code]-1.0[/code] (left) to [code]1.0[/code] (right).
+			</description>
+		</method>
+		<method name="get_device_clock" qualifiers="const">
+			<return type="int" />
+			<param index="0" name="device" type="int" />
+			<description>
+				Returns the clock of the sound chip [param device], in Hz, as stored in the file. A device that is part of another chip reports that chip's clock.
+			</description>
+		</method>
+		<method name="get_device_core_options" qualifiers="const">
+			<return type="int" />
+			<param index="0" name="device" type="int" />
+			<description>
+				Returns the emulation option bits of [param device]. They start at libvgm's defaults for the song.
+			</description>
+		</method>
+		<method name="get_device_count" qualifiers="const">
+			<return type="int" />
+			<description>
+				Returns the number of sound chips the song uses. Chips that are part of another chip (such as the SSG of a YM2608) are listed as their own device.
+			</description>
+		</method>
+		<method name="get_device_name" qualifiers="const">
+			<return type="String" />
+			<param index="0" name="device" type="int" />
+			<description>
+				Returns the chip name of [param device], for example [code]"SN76496"[/code]. A second chip of the same type is suffixed with [code]" #2"[/code].
+			</description>
+		</method>
+		<method name="get_format" qualifiers="const">
+			<return type="String" />
+			<description>
+				Returns the file format of the song: [code]"VGM"[/code], [code]"S98"[/code], [code]"DRO"[/code] or [code]"GYM"[/code]. Empty when the stream has no data.
+			</description>
+		</method>
+		<method name="get_format_version" qualifiers="const">
+			<return type="String" />
+			<description>
+				Returns the version of the file format, for example [code]"1.71"[/code]. Empty when the stream has no data.
+			</description>
+		</method>
+		<method name="get_loop_length" qualifiers="const">
+			<return type="float" />
+			<description>
+				Returns the length of the looped part of the song in seconds, or [code]0[/code] if the song does not loop. See [method get_loop_start].
+			</description>
+		</method>
+		<method name="get_loop_start" qualifiers="const">
+			<return type="float" />
+			<description>
+				Returns the position in seconds where the song starts to loop, or [code]0[/code] if the song does not loop. This is a position in the file, the same time base as [method AudioStreamPlayer.get_playback_position] and [method AudioStreamPlayer.seek], independent of [member speed]. To jump to the loop: [code]$AudioStreamPlayer.seek(song.get_loop_start())[/code].
+			</description>
+		</method>
+		<method name="get_song_tags" qualifiers="const">
+			<return type="Dictionary" />
+			<description>
+				Returns the song's tags, such as [code]"TITLE"[/code], [code]"GAME"[/code], [code]"ARTIST"[/code] and [code]"DATE"[/code]. Only tags present in the file are included.
+			</description>
+		</method>
+		<method name="has_channel_panning" qualifiers="const">
+			<return type="bool" />
+			<param index="0" name="device" type="int" />
+			<description>
+				Returns [code]true[/code] if the emulation of [param device] supports per-channel panning. Panning set for other chips has no effect.
+			</description>
+		</method>
+		<method name="is_channel_muted" qualifiers="const">
+			<return type="bool" />
+			<param index="0" name="device" type="int" />
+			<param index="1" name="channel" type="int" />
+			<description>
+				Returns [code]true[/code] if [param channel] of [param device] is muted.
+			</description>
+		</method>
+		<method name="set_channel_muted">
+			<return type="void" />
+			<param index="0" name="device" type="int" />
+			<param index="1" name="channel" type="int" />
+			<param index="2" name="muted" type="bool" />
+			<description>
+				Mutes or unmutes one channel of [param device]. Takes effect immediately on playing streams.
+			</description>
+		</method>
+		<method name="set_channel_pan">
+			<return type="void" />
+			<param index="0" name="device" type="int" />
+			<param index="1" name="channel" type="int" />
+			<param index="2" name="pan" type="float" />
+			<description>
+				Sets the stereo position of [param channel] of [param device], from [code]-1.0[/code] (left) to [code]1.0[/code] (right). Takes effect immediately. Only applies while [method has_channel_panning] is [code]true[/code].
+			</description>
+		</method>
+		<method name="set_device_core_options">
+			<return type="void" />
+			<param index="0" name="device" type="int" />
+			<param index="1" name="options" type="int" />
+			<description>
+				Sets the emulation option bits of [param device]: a combination of the [code]CORE_OPTION_*[/code] constants for that chip, or other chip-specific flags documented in libvgm's [code]emu/cores/*.h[/code] headers. The inspector shows the known flags of each chip as named checkboxes. Takes effect immediately. Devices that are part of another chip share that chip's options and cannot be set.
+				[codeblock]
+				# Turn off the Game Boy high-pass filter.
+				var opts := song.get_device_core_options(0)
+				song.set_device_core_options(0, opts &amp; ~VGMStream.CORE_OPTION_NES_NONLINEAR_MIXER)
+				[/codeblock]
+			</description>
+		</method>
+		<method name="set_device_muted">
+			<return type="void" />
+			<param index="0" name="device" type="int" />
+			<param index="1" name="muted" type="bool" />
+			<description>
+				Mutes or unmutes all channels of [param device].
+			</description>
+		</method>
+	</methods>
+	<members>
+		<member name="data" type="PackedByteArray" setter="set_data" getter="get_data" default="PackedByteArray()">
+			The raw song file (optionally gzip-compressed, as in [code].vgz[/code]). Setting it re-reads the song's devices and resets the per-device settings. Invalid data is rejected with an error and leaves the stream empty.
+		</member>
+		<member name="device_settings" type="Array" setter="set_device_settings" getter="get_device_settings" default="[]">
+			Storage of the per-device settings (emulation options, muted channels and panning), so they are saved with the resource. Use the device methods instead of editing it.
+		</member>
+		<member name="fade_time" type="float" setter="set_fade_time" getter="get_fade_time" default="0.0">
+			Length of the fade-out in seconds once [member loop_count] loops have played. [code]0.0[/code] stops immediately at the end of the last loop.
+		</member>
+		<member name="format" type="String" setter="" getter="get_format" default="&quot;&quot;">
+			The file format of the song, shown in the inspector's [b]Song Info[/b] group. Read-only. See [method get_format].
+		</member>
+		<member name="format_version" type="String" setter="" getter="get_format_version" default="&quot;&quot;">
+			The version of the file format. Read-only. See [method get_format_version].
+		</member>
+		<member name="ignore_song_volume" type="bool" setter="set_ignore_song_volume" getter="get_ignore_song_volume" default="false">
+			If [code]true[/code], ignores the volume adjustment stored in the song file, so songs play at the chips' plain output level.
+		</member>
+		<member name="loop_count" type="int" setter="set_loop_count" getter="get_loop_count" default="0">
+			How many times songs with a loop point play through their loop before ending (followed by [member fade_time]); [code]0[/code] loops forever. VGM files can scale this count for very short or long loops. When the song ends, [signal AudioStreamPlayer.finished] is emitted.
+		</member>
+		<member name="loop_length" type="float" setter="" getter="get_loop_length" default="0.0">
+			Length of the looped part of the song, in seconds. [code]0[/code] without a loop. Read-only. See [method get_loop_length].
+		</member>
+		<member name="loop_start" type="float" setter="" getter="get_loop_start" default="0.0">
+			Position where the song starts to loop, in seconds. [code]0[/code] without a loop. Read-only. See [method get_loop_start].
+		</member>
+		<member name="overrides" type="Dictionary" setter="set_overrides" getter="get_overrides" default="{}">
+			Storage of the settings this stream overrides instead of following Project Settings ([member loop_count], [member fade_time], [member ignore_song_volume], [member resampler_mode]), so they are saved with the resource. Use those properties instead of editing it.
+		</member>
+		<member name="resampler_mode" type="int" setter="set_resampler_mode" getter="get_resampler_mode" enum="VGMStream.ResamplerMode" default="0">
+			Quality of the resampling from each chip's native rate to the output rate. Playing streams restart the chip emulation and continue from their current position.
+		</member>
+		<member name="speed" type="float" setter="set_speed" getter="get_speed" default="1.0">
+			Playback tempo multiplier. Unlike [member AudioStreamPlayer.pitch_scale], this keeps the pitch unchanged. Must be greater than [code]0[/code].
+		</member>
+	</members>
+	<constants>
+		<constant name="RESAMPLER_HIGH_QUALITY" value="0" enum="ResamplerMode">
+			High quality resampling.
+		</constant>
+		<constant name="RESAMPLER_LOW_QUALITY" value="1" enum="ResamplerMode">
+			Faster, lower quality resampling.
+		</constant>
+		<constant name="RESAMPLER_LQ_DOWN_HQ_UP" value="2" enum="ResamplerMode">
+			Low quality when downsampling, high quality when upsampling.
+		</constant>
+		<constant name="CORE_OPTION_NES_NONLINEAR_MIXER" value="2">
+			NES APU: uses the console's nonlinear channel mixing. On by default.
+		</constant>
+		<constant name="CORE_OPTION_GA20_INTERPOLATE" value="1">
+			Irem GA20: linear interpolation of samples.
+		</constant>
+	</constants>
+</class>

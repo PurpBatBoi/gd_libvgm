@@ -2,3 +2,10 @@
 	path = godot-cpp
 	url = https://github.com/godotengine/godot-cpp.git
 	branch = 4.5
+[submodule "thirdparty/libvgm"]
+	path = thirdparty/libvgm
+	url = https://github.com/PurpBatBoi/libvgm.git
+	branch = godot_libvgm
+[submodule "thirdparty/zlib"]
+	path = thirdparty/zlib
+	url = https://github.com/madler/zlib.git

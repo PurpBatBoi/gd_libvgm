@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<class name="VGMStreamPlayback" inherits="AudioStreamPlaybackResampled" api_type="extension" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/godotengine/godot/master/doc/class.xsd">
+	<brief_description>
+		Playback instance of a [VGMStream].
+	</brief_description>
+	<description>
+		Created by [AudioStreamPlayer] when playing a [VGMStream]. It has no settings of its own: it applies the settings of its [VGMStream], plus the player's [code]parameters/*[/code] values (see [VGMStream]), whenever they change.
+		Get it from a playing player to react to loops and the fade-out. The end of the song is [signal AudioStreamPlayer.finished].
+		[codeblock]
+		$AudioStreamPlayer.play()
+		($AudioStreamPlayer.get_stream_playback() as VGMStreamPlayback).looped.connect(_on_looped)
+		[/codeblock]
+		[b]Note:[/b] Signals are emitted when the audio is mixed, which is ahead of what the listener hears by about [method AudioServer.get_output_latency].
+	</description>
+	<tutorials>
+	</tutorials>
+	<signals>
+		<signal name="fade_started">
+			<description>
+				Emitted when the last loop has been reached and the fade-out begins. [signal AudioStreamPlayer.finished] follows once the fade ends.
+			</description>
+		</signal>
+		<signal name="looped">
+			<param index="0" name="loop" type="int" />
+			<description>
+				Emitted when the song passes its loop point and starts to repeat. [param loop] is [code]1[/code] for the first repeat. Seeking does not emit it.
+			</description>
+		</signal>
+	</signals>
+</class>

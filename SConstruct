@@ -5,6 +5,7 @@ from tools.config_manager import config
 from tools.gdextension_file_helper import (
     sync_gdextension_to_target_project,
 )
+from tools.libvgm_build import add_libvgm
 from tools.paths import DOCS_SOURCE_DIR
 from tools.scons_build_helpers import (
     find_sources,
@@ -65,6 +66,7 @@ bundle_id_prefix = env.get('bundle_id_prefix', 'com.gdextension')
 
 env.Append(CPPPATH=include_dirs)
 sources = find_sources(source_dirs, source_exts)
+sources += add_libvgm(env)
 
 # Bind Documentation Generation (in both template_debug and template_release builds)
 try:

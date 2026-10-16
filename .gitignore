@@ -167,3 +167,9 @@ nbdist/
 *.orig
 *.old
 *.log
+
+# Upstream emulator clones used as porting references (each has its own .git); notes at the top level are tracked.
+.MIT-friendly-cores/*/
+
+# Local song rips (game music) for testing: never commit them.
+.MUSIC/
