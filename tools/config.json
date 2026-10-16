@@ -1,12 +1,17 @@
 {
-  "pluginName": "plugin_name",
+  "pluginName": "gd_libvgm",
   "godotVersion": "4.7",
-  "godotActivePath": "",
-  "savedGodotPaths": [],
+  "godotActivePath": "/usr/bin/godot",
+  "savedGodotPaths": [
+    {
+      "path": "/usr/bin/godot",
+      "version": "4.7.2.stable.arch_linux.ed1daf0bf"
+    }
+  ],
   "godotProjectFolder": "",
   "ltoMode": "none",
   "selectedBuildProfile": "2d_build_profile.json",
-  "extensionApiPath": "godot-cpp/gdextension/extension_api.json",
+  "extensionApiPath": "godot-cpp/gdextension/extension_api-4-7.json",
   "reloadable": true,
   "editorTargetMode": "debug",
   "debugSymbols": "no"
