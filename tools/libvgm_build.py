@@ -51,7 +51,8 @@ def add_libvgm(env: Any) -> list[Any]:
         vgm_env["CXXFLAGS"] = [f for f in vgm_env["CXXFLAGS"] if f != "-std=c++17"] + ["-std=c++14"]
     # Objects go under build/ rather than next to their sources, so the submodules stay clean.
     objects = []
+    obj_suffix = vgm_env.subst("$SHOBJSUFFIX")  # MSVC defines it as "$OBJSUFFIX", so expand it.
     for source in _libvgm_sources(env["platform"]):
-        target = OBJ_DIR / Path(source).relative_to(PROJECT_ROOT).with_suffix(vgm_env["SHOBJSUFFIX"])
+        target = OBJ_DIR / Path(source).relative_to(PROJECT_ROOT).with_suffix(obj_suffix)
         objects += vgm_env.SharedObject(target=str(target), source=source)
     return objects
