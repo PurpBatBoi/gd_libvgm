@@ -208,6 +208,6 @@ So far the extension has only been built and tested on Linux x86_64; other platf
 ## Credits
 
 - [libvgm](https://github.com/ValleyBell/libvgm) by Valley Bell and the authors of its sound cores
-- [TetaNES](https://github.com/lukexor/tetanes) by Luke Petherbridge, whose band-limited synth and output filters the `apu2a03` NES core's renderer is based on
+- [BeesNES](https://github.com/lukexor/tetanes) by L-Spiro, `apu2a03` NES core is based on his code.
 - [zlib](https://zlib.net/)
 - Build setup based on the [Godot++](https://github.com/nikoladevelops/godot-plus-plus) GDExtension template
