@@ -22,8 +22,13 @@ static constexpr int64_t YM2608_RHYTHM_ROM_SIZE = 0x2000;
 static std::mutex defaults_mutex;
 static VGMProjectSettings::Defaults defaults;
 static std::atomic<uint64_t> defaults_version{ 0 };
-static PackedByteArray ym2608_rhythm_rom; // guarded by defaults_mutex
-static String ym2608_rhythm_rom_path; // main thread only: the path last read
+// Godot types can't be built before the extension is initialized (at library load), so this lives on the heap
+// between initialize() and uninitialize().
+struct RomState {
+	PackedByteArray ym2608_rhythm_rom; // guarded by defaults_mutex
+	String ym2608_rhythm_rom_path; // main thread only: the path last read
+};
+static RomState *roms = nullptr;
 
 // Reads the ROM file a setting points to; an empty path or a bad file gives no ROM.
 static PackedByteArray read_rom(const String &p_path, int64_t p_size) {
@@ -54,6 +59,7 @@ static void add_setting(const String &p_name, const Variant &p_default, Variant:
 }
 
 void VGMProjectSettings::initialize() {
+	roms = new RomState;
 	add_setting(LOOP_COUNT, 0, Variant::INT, PROPERTY_HINT_RANGE, "0,100,1,or_greater");
 	add_setting(FADE_TIME, 0.0, Variant::FLOAT, PROPERTY_HINT_RANGE, "0,30,0.1,or_greater,suffix:s");
 	add_setting(IGNORE_SONG_VOLUME, false, Variant::BOOL, PROPERTY_HINT_NONE, "");
@@ -66,6 +72,9 @@ void VGMProjectSettings::initialize() {
 
 void VGMProjectSettings::uninitialize() {
 	ProjectSettings::get_singleton()->disconnect("settings_changed", callable_mp_static(&VGMProjectSettings::reload));
+	std::lock_guard<std::mutex> lock(defaults_mutex);
+	delete roms;
+	roms = nullptr;
 }
 
 void VGMProjectSettings::reload() {
@@ -77,14 +86,14 @@ void VGMProjectSettings::reload() {
 	loaded.resampler_mode = CLAMP((int)ps->get_setting_with_override(RESAMPLER_MODE), 0, 2);
 	// Settings change one at a time, so only read the ROM again when its path changes.
 	const String rom_path = ps->get_setting_with_override(YM2608_RHYTHM_ROM);
-	const bool rom_changed = rom_path != ym2608_rhythm_rom_path;
+	const bool rom_changed = rom_path != roms->ym2608_rhythm_rom_path;
 	const PackedByteArray rom = rom_changed ? read_rom(rom_path, YM2608_RHYTHM_ROM_SIZE) : PackedByteArray();
-	ym2608_rhythm_rom_path = rom_path;
+	roms->ym2608_rhythm_rom_path = rom_path;
 	{
 		std::lock_guard<std::mutex> lock(defaults_mutex);
 		defaults = loaded;
 		if (rom_changed) {
-			ym2608_rhythm_rom = rom;
+			roms->ym2608_rhythm_rom = rom;
 		}
 	}
 	defaults_version++;
@@ -97,7 +106,7 @@ VGMProjectSettings::Defaults VGMProjectSettings::get() {
 
 PackedByteArray VGMProjectSettings::get_ym2608_rhythm_rom() {
 	std::lock_guard<std::mutex> lock(defaults_mutex);
-	return ym2608_rhythm_rom;
+	return roms ? roms->ym2608_rhythm_rom : PackedByteArray();
 }
 
 uint64_t VGMProjectSettings::get_version() {

@@ -181,7 +181,9 @@ void VGMStream::set_data(const PackedByteArray &p_data) {
 			device.linked = linked;
 			device.name = String::utf8(decl->name(info.devCfg));
 			if (linked) {
-				device.name = String::utf8(owner.devDecl->name(owner.devCfg)) + " / " + device.name;
+				// No '/': the inspector would split the group name into nested groups. The only linked devices
+				// are the OPN chips' SSG parts (AY8910 core).
+				device.name = String::utf8(owner.devDecl->name(owner.devCfg)) + " SSG (" + device.name + ")";
 			}
 			if (owner.instance > 0 && owner.instance != 0xFFFF) {
 				device.name += " #" + itos(owner.instance + 1);
