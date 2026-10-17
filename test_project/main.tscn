@@ -3,4 +3,4 @@
 [node name="Main" type="Node2D" unique_id=2124938054]
 
 [node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="." unique_id=252385241]
-volume_db = -5.0
+volume_db = -2.045
