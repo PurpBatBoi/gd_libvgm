@@ -27,6 +27,7 @@ that core.
 | YM2151 (OPM) | Arcade, X68000 | `ymfm` | BSD-3-Clause ([upstream](https://github.com/aaronsgiles/ymfm)) | `ym2151.c` (C port of ymfm's YM2151) |
 | YM3812 / YM3526 / Y8950 (OPL, OPL2, MSX-AUDIO) | AdLib, arcade, MSX-AUDIO | `ymfm` | BSD-3-Clause ([upstream](https://github.com/aaronsgiles/ymfm)) | `ym3812.c` (C port of ymfm's YM3526, YM3812 and Y8950, with ADPCM-B) |
 | YMF262 (OPL3) | Sound Blaster 16 / Pro 2 | `ymfm` | BSD-3-Clause ([upstream](https://github.com/aaronsgiles/ymfm)) | `ymf262.c` (C port of ymfm's YMF262) |
+| YM2203 / YM2608 / YM2610 / YM2610B (OPN family) | PC-88/98, Neo Geo, arcade | `ymfm` | BSD-3-Clause ([upstream](https://github.com/aaronsgiles/ymfm)); YM2608 rhythm sounds: BSD-3-Clause ([Tetorica](https://github.com/kyorohiro/hello_ymfm_wasm)) | `ym2608.c` (C port of ymfm's YM2203, YM2608 and YM2610, with ADPCM-A/B), `ym2608_rhythm.h`; the SSG part uses the AY-3-8910 core |
 | HuC6280 | PC Engine / TurboGrafx-16 | `MAME` | BSD-3-Clause | `c6280_mame.c` |
 | Game Boy DMG | Game Boy | `MAME` | BSD-3-Clause | `gb_mame.c` |
 | NES APU (+ FDS) | NES / Famicom, Famicom Disk System | `apu2a03` | 2A03: MIT (written for this project). FDS: written for this project from the [nesdev wiki](https://www.nesdev.org/wiki/FDS_audio), same license as this project (not chosen yet). | `apu2a03.c`, `nes_apu_2a03.c`, `nes_fds_2a03.c`, `nes_synth_2a03.h` (in the libvgm fork) |
@@ -60,7 +61,13 @@ that core.
 
 `apu2a03` was written for this project.
 
-The YM2612, YM2151, OPL, and OPL3 cores are C ports of their respective [ymfm](https://github.com/aaronsgiles/ymfm) cores.
+The YM2612, YM2151, OPL, OPL3 and OPN cores are C ports of their respective [ymfm](https://github.com/aaronsgiles/ymfm) cores.
+
+The YM2608 has an 8 KB rhythm ROM made by Yamaha, which can't be shipped. `ym2608_rhythm.h` holds the
+[Tetorica OPNA rhythm sounds](https://github.com/kyorohiro/hello_ymfm_wasm/tree/main/assets/opna-rhythm) instead:
+six drum voices synthesized from sine waves and noise, with the same layout and encoding as the original ROM.
+They contain no Yamaha data, so YM2608 drums sound different from the real chip. The ROM was regenerated from
+its generator script and matched byte for byte.
 
 ## Unsupported chips
 
@@ -70,7 +77,6 @@ one of them fails with an error naming the chip.
 | Chip | Typical use | Removed cores and licenses |
 |---|---|---|
 | YMF278B (OPL4) | MSX MoonSound | `openMSX` GPL-2.0 |
-| YM2203 / YM2608 / YM2610 (OPN family) | PC-88/98, Neo Geo | `MAME` GPL-2.0+ |
 | 32X PWM | Sega 32X | `Gens/GS` GPL |
 | VSU | Virtual Boy | `Mednafen` GPL |
 | MSM5232 | Arcade | `MAME` GPL-2.0+ |
@@ -89,4 +95,5 @@ The following components also ship inside the extension and require license clea
 ## Shipping
 
 The copyright notice and license text of each shipped core must be included. MAME cores carry their copyright
-holders at the top of each source file, and `ym2612.c`, `ym2151.c`, `ym3812.c` and `ymf262.c` carry ymfm's BSD-3-Clause notice.
+holders at the top of each source file, and `ym2612.c`, `ym2151.c`, `ym3812.c`, `ymf262.c` and `ym2608.c` carry ymfm's BSD-3-Clause notice.
+`ym2608_rhythm.h` carries the Tetorica BSD-3-Clause notice for the YM2608 rhythm sounds; it must be included too.

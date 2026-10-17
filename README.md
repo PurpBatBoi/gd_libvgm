@@ -38,6 +38,7 @@ Only chips with a permissively licensed (MIT / BSD-3-Clause / ISC) emulation cor
 | YM2151 (OPM) | Arcade, X68000 | ymfm |
 | YM3812 / YM3526 / Y8950 (OPL, OPL2, MSX-AUDIO) | AdLib, arcade, MSX-AUDIO | ymfm |
 | YMF262 (OPL3) | Sound Blaster 16 / Pro 2 | ymfm |
+| YM2203 / YM2608 / YM2610 / YM2610B (OPN family) | PC-88/98, Neo Geo, arcade | ymfm |
 | HuC6280 | PC Engine / TurboGrafx-16 | MAME |
 | Game Boy DMG | Game Boy | MAME |
 | NES APU + FDS | NES / Famicom, Famicom Disk System | apu2a03 |
@@ -65,7 +66,9 @@ Only chips with a permissively licensed (MIT / BSD-3-Clause / ISC) emulation cor
 | BSMT2000 | Data East / pinball | MAME |
 | Mikey | Atari Lynx | laoo |
 
-**Not supported for now:** YM2203 / YM2608 / YM2610, YMF278B, 32X PWM, Virtual Boy VSU, MSM5232, ES5505 / ES5506, WonderSwan. Their only cores are GPL, LGPL or unlicensed. This rules out most PC-98 and Neo Geo VGMs.
+**Not supported for now:** YMF278B, 32X PWM, Virtual Boy VSU, MSM5232, ES5505 / ES5506, WonderSwan. Their only cores are GPL, LGPL or unlicensed.
+
+The YM2608 plays its rhythm sounds from a free replacement for Yamaha's rhythm ROM, so PC-98 drums sound different from the real chip.
 
 Licenses and source files per core: [PERMISSIVE_CORES.md](PERMISSIVE_CORES.md).
 
@@ -102,6 +105,21 @@ Each `AudioStreamPlayer` (Godot 4.3+) has a **Parameters** section for the song 
 
 *Project Settings → Libvgm Settings* holds the defaults for loop count, fade time, song volume handling, and resampler quality.
 Songs follow these until you change that setting on the song itself. Reverting it in the inspector makes it follow the project again.
+
+### YM2608 rhythm ROM
+
+The YM2608 (PC-98) plays its drums from an 8 KB rhythm ROM. The extension has a free replacement built in
+([Tetorica OPNA rhythm sounds](https://github.com/kyorohiro/hello_ymfm_wasm/tree/main/assets/opna-rhythm), BSD-3-Clause),
+which sounds different from the real chip. To use another ROM, for example one you made with Tetorica's
+[editor page](https://kyorohiro.github.io/hello_ymfm_wasm/demos/opna-rhythm-compare.html):
+
+1. Put the 8 KB file in your project folder.
+2. Pick it in *Project Settings → Libvgm Settings → Roms → Ym2608 Rhythm Rom*.
+3. Godot doesn't export `.bin` / `.rom` files by itself: add the file (or `*.bin`) to the export preset's
+   *Resources → Filters to export non-resource files/folders*.
+
+A new ROM applies to songs started afterwards. A file of the wrong size is ignored with a warning. Only ship a ROM
+you are allowed to distribute; Yamaha's own ROM is copyrighted.
 
 ### Filtering
 

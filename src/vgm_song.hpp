@@ -29,8 +29,11 @@ public:
 
 private:
 	PackedByteArray data; // Backing memory for loader; must outlive it.
+	PackedByteArray requested_file; // Backing memory for the loader handed to libvgm by on_file_request().
 	uint32_t sample_rate = 0;
 	DATA_LOADER *loader = nullptr;
 
 	void unload();
+	// libvgm asks for external ROM files by name while it starts a song's chips.
+	static DATA_LOADER *on_file_request(void *p_user, PlayerBase *p_player, const char *p_name);
 };
