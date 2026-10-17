@@ -60,14 +60,9 @@ static const std::vector<CoreOption> *find_core_options(uint8_t p_type) {
 // libvgm can't name a chip it has no declaration for.
 static const char *unsupported_chip_name(DEV_ID p_type) {
 	switch (p_type) {
-		case DEVID_YM2151: return "YM2151";
 		case DEVID_YM2203: return "YM2203";
 		case DEVID_YM2608: return "YM2608";
 		case DEVID_YM2610: return "YM2610";
-		case DEVID_YM3812: return "YM3812";
-		case DEVID_YM3526: return "YM3526";
-		case DEVID_Y8950: return "Y8950";
-		case DEVID_YMF262: return "YMF262";
 		case DEVID_YMF278B: return "YMF278B";
 		case DEVID_32X_PWM: return "32X PWM";
 		case DEVID_WSWAN: return "WonderSwan";

@@ -23,7 +23,10 @@ that core.
 | SN76489 / SN76496 | Master System, Game Gear, Genesis PSG, BBC Micro | `MAME` | BSD-3-Clause | `sn76496.c` |
 | AY-3-8910 / YM2149 | MSX, ZX Spectrum, Atari ST, Amstrad CPC | `MAME` | BSD-3-Clause | `ay8910.c` |
 | YM2413 (OPLL) | Master System FM, MSX-MUSIC, VRC7 | `EMU2413` | MIT ([upstream](https://github.com/digital-sound-antiques/emu2413)) | `emu2413.c` |
-| YM2612 / YM3438 | Genesis / Mega Drive FM | `ares` | ISC ([upstream](https://github.com/ares-emulator/ares/tree/master/ares/component/audio/ym2612)) | `ym2612.c` (C port of the ares core by Talarubi) |
+| YM2612 / YM3438 | Genesis / Mega Drive FM | `ymfm` | BSD-3-Clause ([upstream](https://github.com/aaronsgiles/ymfm)) | `ym2612.c` (C port of ymfm's YM2612) |
+| YM2151 (OPM) | Arcade, X68000 | `ymfm` | BSD-3-Clause ([upstream](https://github.com/aaronsgiles/ymfm)) | `ym2151.c` (C port of ymfm's YM2151) |
+| YM3812 / YM3526 / Y8950 (OPL, OPL2, MSX-AUDIO) | AdLib, arcade, MSX-AUDIO | `ymfm` | BSD-3-Clause ([upstream](https://github.com/aaronsgiles/ymfm)) | `ym3812.c` (C port of ymfm's YM3526, YM3812 and Y8950, with ADPCM-B) |
+| YMF262 (OPL3) | Sound Blaster 16 / Pro 2 | `ymfm` | BSD-3-Clause ([upstream](https://github.com/aaronsgiles/ymfm)) | `ymf262.c` (C port of ymfm's YMF262) |
 | HuC6280 | PC Engine / TurboGrafx-16 | `MAME` | BSD-3-Clause | `c6280_mame.c` |
 | Game Boy DMG | Game Boy | `MAME` | BSD-3-Clause | `gb_mame.c` |
 | NES APU (+ FDS) | NES / Famicom, Famicom Disk System | `apu2a03` | 2A03: MIT (written for this project; its renderer reuses the band-limited synth and filters from [TetaNES](https://github.com/lukexor/tetanes)). FDS: written for this project from the [nesdev wiki](https://www.nesdev.org/wiki/FDS_audio), same license as this project (not chosen yet). | `apu2a03.c`, `nes_apu_2a03.c`, `nes_fds_2a03.c`, `nes_synth_2a03.h` (in the libvgm fork) |
@@ -59,10 +62,22 @@ that core.
 other NES emulators. Its FDS volume envelope follows the wiki's timing, so some FDS attacks ramp up
 more slowly than in NSFPlay.
 
-The `ares` YM2612 core was first written for higan (GPLv3) in 2017. ares relicensed it to ISC in v121
-(2021), and ares maintainer Luke Usher confirmed on 2026-10-16 that all ares code outside its `thirdparty/`
-directory is ISC. The core matches ares's output sample for sample. It leaves out ares's Mega Drive board
-filters (20 Hz high-pass, 2840 Hz low-pass), CSM mode and the busy flag.
+The YM2612 core is a C port of ymfm's YM2612 and matches upstream ymfm's output sample for sample. ymfm leaves
+timers to its host, so the port counts them in chip samples; that also gives it CSM mode. It has no busy flag
+and no YM3438 mode.
+
+The YM2151 core is a C port of ymfm's YM2151 and matches upstream ymfm's output sample for sample. Timers
+count in chip samples, as in the YM2612 port. It has no busy flag, and the CT1/CT2 output pins drive nothing.
+
+The OPL core (`ym3812.c`) is a C port of ymfm's YM3526, YM3812 and Y8950 and matches upstream ymfm's output
+sample for sample, including the rhythm section and the Y8950's ADPCM-B channel. Timers count in chip samples.
+The Y8950's keyboard and I/O ports are not connected.
+
+The OPL3 core (`ymf262.c`) is a C port of ymfm's YMF262 and matches upstream ymfm's output sample for sample,
+including 4-operator channels and the rhythm section. Its 4 outputs are mixed to stereo like libvgm's old MAME
+core (left = A + C, right = B + D). Timers count in chip samples. It plays about 6 dB louder than the removed
+AdLibEmu core, because ymfm mixes OPL3 at full scale. As in ymfm, bank-1 writes before OPL3 mode is on go to
+bank 0, so a song that enables 4-operator mode before OPL3 mode stays in 2-operator mode. OPL3 DRO files play.
 
 ## Unsupported chips
 
@@ -71,9 +86,6 @@ one of them fails with an error naming the chip, for now.
 
 | Chip | Typical use | Removed cores and licenses |
 |---|---|---|
-| YM2151 (OPM) | Arcade, X68000 | `MAME` GPL-2.0+, `Nuked OPM` LGPL-2.1+ |
-| YM3812 / YM3526 / Y8950 (OPL) | AdLib, arcade, MSX-AUDIO | `MAME` GPL-2.0+, `AdLibEmu` / `Nuked OPL3` LGPL-2.1+ |
-| YMF262 (OPL3) | Sound Blaster 16 / Pro 2 | `MAME` GPL-2.0+, `AdLibEmu` / `Nuked OPL3` LGPL-2.1+ |
 | YMF278B (OPL4) | MSX MoonSound | `openMSX` GPL-2.0 |
 | YM2203 / YM2608 / YM2610 (OPN family) | PC-88/98, Neo Geo | `MAME` GPL-2.0+ |
 | 32X PWM | Sega 32X | `Gens/GS` GPL |
@@ -82,13 +94,9 @@ one of them fails with an error naming the chip, for now.
 | ES5505 / ES5506 | Arcade, Ensoniq | no license stated |
 | WonderSwan | WonderSwan | no license stated |
 
-DRO files (OPL) can't load at all until those chips have cores.
-
 A possible future fix: [ymfm](https://github.com/aaronsgiles/ymfm) (BSD-3-Clause, already bundled for the
-YM2414) also emulates the YM2151, the OPL family and the OPN family, but libvgm doesn't use it
-for those chips yet. Caveat: ymfm is template-heavy C++, while ValleyBell (libvgm's author) recommends
-that cores be written in C90. A C90 port of the relevant ymfm code would fit libvgm better, the same
-way the `apu2a03` NES core is written in C90.
+YM2414) also emulates the OPL family and the OPN family. The fork ports ymfm chip by chip to C90-like C,
+as ValleyBell (libvgm's author) recommends for cores; the YM2612, YM2151, OPL/OPL2 (YM3526, YM3812, Y8950) and OPL3 (YMF262) are done.
 
 ## Not covered here
 
@@ -102,4 +110,4 @@ These also ship inside the extension and need to be cleared before release:
 ## Shipping
 
 Include the copyright notice and license text of each core you ship. MAME cores carry their copyright
-holders at the top of each source file, `nes_apu_2a03.c` and `nes_synth_2a03.h` carry TetaNES's MIT notice, and `ym2612.c` carries the ares ISC notice.
+holders at the top of each source file, `nes_apu_2a03.c` and `nes_synth_2a03.h` carry TetaNES's MIT notice, and `ym2612.c`, `ym2151.c`, `ym3812.c` and `ymf262.c` carry ymfm's BSD-3-Clause notice.
