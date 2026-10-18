@@ -24,6 +24,8 @@ public:
 	static uint64_t get_version();
 	// The YM2608 rhythm ROM chosen in the project settings; empty when none is set (the built-in sounds play).
 	static godot::PackedByteArray get_ym2608_rhythm_rom();
+	// The YMF278B (OPL4) wave ROM chosen in the project settings; empty when none is set (the instruments are silent).
+	static godot::PackedByteArray get_yrw801_rom();
 
 private:
 	static void reload();

@@ -19,11 +19,15 @@ VGMSong::VGMSong() {
 
 DATA_LOADER *VGMSong::on_file_request(void *p_user, PlayerBase *p_player, const char *p_name) {
 	VGMSong *song = static_cast<VGMSong *>(p_user);
-	if (strcmp(p_name, "ym2608_adpcm_rom.bin") != 0) {
+	if (strcmp(p_name, "ym2608_adpcm_rom.bin") == 0) {
+		song->requested_file = VGMProjectSettings::get_ym2608_rhythm_rom();
+	} else if (strcmp(p_name, "yrw801.rom") == 0) {
+		song->requested_file = VGMProjectSettings::get_yrw801_rom();
+	} else {
 		return nullptr;
 	}
-	// libvgm copies the file before it frees the loader; an empty ROM keeps the built-in rhythm sounds.
-	song->requested_file = VGMProjectSettings::get_ym2608_rhythm_rom();
+	// libvgm copies the file before it frees the loader; without a ROM the chip keeps its built-in sounds (the YM2608)
+	// or has no samples (the YMF278B).
 	if (song->requested_file.is_empty()) {
 		return nullptr;
 	}

@@ -16,8 +16,10 @@ static const char *FADE_TIME = "libvgm_settings/playback/fade_time";
 static const char *IGNORE_SONG_VOLUME = "libvgm_settings/playback/ignore_song_volume";
 static const char *RESAMPLER_MODE = "libvgm_settings/playback/resampler_mode";
 static const char *YM2608_RHYTHM_ROM = "libvgm_settings/roms/ym2608_rhythm_rom";
+static const char *YRW801_ROM = "libvgm_settings/roms/yrw801_rom";
 
 static constexpr int64_t YM2608_RHYTHM_ROM_SIZE = 0x2000;
+static constexpr int64_t YRW801_ROM_SIZE = 0x200000;
 
 static std::mutex defaults_mutex;
 static VGMProjectSettings::Defaults defaults;
@@ -27,17 +29,19 @@ static std::atomic<uint64_t> defaults_version{ 0 };
 struct RomState {
 	PackedByteArray ym2608_rhythm_rom; // guarded by defaults_mutex
 	String ym2608_rhythm_rom_path; // main thread only: the path last read
+	PackedByteArray yrw801_rom; // guarded by defaults_mutex
+	String yrw801_rom_path; // main thread only: the path last read
 };
 static RomState *roms = nullptr;
 
-// Reads the ROM file a setting points to; an empty path or a bad file gives no ROM.
-static PackedByteArray read_rom(const String &p_path, int64_t p_size) {
+// Reads the ROM file a setting points to; an empty path or a bad file gives no ROM. p_fallback says what plays without it.
+static PackedByteArray read_rom(const String &p_path, int64_t p_size, const String &p_fallback) {
 	if (p_path.is_empty()) {
 		return PackedByteArray();
 	}
 	const PackedByteArray data = FileAccess::get_file_as_bytes(p_path);
 	if (data.size() != p_size) {
-		WARN_PRINT(vformat("libvgm: %s must be a %d-byte ROM file; using the built-in sounds instead.", p_path, p_size));
+		WARN_PRINT(vformat("libvgm: %s must be a %d-byte ROM file; %s.", p_path, p_size, p_fallback));
 		return PackedByteArray();
 	}
 	return data;
@@ -65,6 +69,7 @@ void VGMProjectSettings::initialize() {
 	add_setting(IGNORE_SONG_VOLUME, false, Variant::BOOL, PROPERTY_HINT_NONE, "");
 	add_setting(RESAMPLER_MODE, 0, Variant::INT, PROPERTY_HINT_ENUM, "High Quality,Low Quality,LQ Down HQ Up");
 	add_setting(YM2608_RHYTHM_ROM, String(), Variant::STRING, PROPERTY_HINT_FILE, "*.bin,*.rom");
+	add_setting(YRW801_ROM, String(), Variant::STRING, PROPERTY_HINT_FILE, "*.bin,*.rom");
 
 	reload();
 	ProjectSettings::get_singleton()->connect("settings_changed", callable_mp_static(&VGMProjectSettings::reload));
@@ -87,13 +92,20 @@ void VGMProjectSettings::reload() {
 	// Settings change one at a time, so only read the ROM again when its path changes.
 	const String rom_path = ps->get_setting_with_override(YM2608_RHYTHM_ROM);
 	const bool rom_changed = rom_path != roms->ym2608_rhythm_rom_path;
-	const PackedByteArray rom = rom_changed ? read_rom(rom_path, YM2608_RHYTHM_ROM_SIZE) : PackedByteArray();
+	const PackedByteArray rom = rom_changed ? read_rom(rom_path, YM2608_RHYTHM_ROM_SIZE, "using the built-in sounds instead") : PackedByteArray();
 	roms->ym2608_rhythm_rom_path = rom_path;
+	const String yrw801_path = ps->get_setting_with_override(YRW801_ROM);
+	const bool yrw801_changed = yrw801_path != roms->yrw801_rom_path;
+	const PackedByteArray yrw801 = yrw801_changed ? read_rom(yrw801_path, YRW801_ROM_SIZE, "the YMF278B instruments stay silent") : PackedByteArray();
+	roms->yrw801_rom_path = yrw801_path;
 	{
 		std::lock_guard<std::mutex> lock(defaults_mutex);
 		defaults = loaded;
 		if (rom_changed) {
 			roms->ym2608_rhythm_rom = rom;
+		}
+		if (yrw801_changed) {
+			roms->yrw801_rom = yrw801;
 		}
 	}
 	defaults_version++;
@@ -107,6 +119,11 @@ VGMProjectSettings::Defaults VGMProjectSettings::get() {
 PackedByteArray VGMProjectSettings::get_ym2608_rhythm_rom() {
 	std::lock_guard<std::mutex> lock(defaults_mutex);
 	return roms ? roms->ym2608_rhythm_rom : PackedByteArray();
+}
+
+PackedByteArray VGMProjectSettings::get_yrw801_rom() {
+	std::lock_guard<std::mutex> lock(defaults_mutex);
+	return roms ? roms->yrw801_rom : PackedByteArray();
 }
 
 uint64_t VGMProjectSettings::get_version() {

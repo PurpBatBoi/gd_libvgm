@@ -39,6 +39,7 @@ Only chips with a permissively licensed (MIT / BSD-3-Clause / ISC) emulation cor
 | YM3812 / YM3526 / Y8950 (OPL, OPL2, MSX-AUDIO) | AdLib, arcade, MSX-AUDIO | ymfm |
 | YMF262 (OPL3) | Sound Blaster 16 / Pro 2 | ymfm |
 | YM2203 / YM2608 / YM2610 / YM2610B (OPN family) | PC-88/98, Neo Geo, arcade | ymfm |
+| YMF278B (OPL4) | MSX MoonSound | ymfm (needs the YRW801 wave ROM, see below) |
 | HuC6280 | PC Engine / TurboGrafx-16 | MAME |
 | Game Boy DMG | Game Boy | MAME |
 | NES APU + FDS | NES / Famicom, Famicom Disk System | apu2a03 |
@@ -66,9 +67,12 @@ Only chips with a permissively licensed (MIT / BSD-3-Clause / ISC) emulation cor
 | BSMT2000 | Data East / pinball | MAME |
 | Mikey | Atari Lynx | laoo |
 
-**Not supported for now:** YMF278B, 32X PWM, Virtual Boy VSU, MSM5232, ES5505 / ES5506, WonderSwan. Their only cores are GPL, LGPL or unlicensed.
+**Not supported for now:** 32X PWM, Virtual Boy VSU, MSM5232, ES5505 / ES5506, WonderSwan. Their only cores are GPL, LGPL or unlicensed.
 
 The YM2608 plays its rhythm sounds from a free replacement for Yamaha's rhythm ROM, so PC-98 drums sound different from the real chip.
+
+The YMF278B plays the FM part without any extra file. Its wavetable instruments need the YRW801 wave ROM, which is Yamaha's
+and can't be shipped: without it the instruments are silent (see [YMF278B wave ROM](#ymf278b-wave-rom)).
 
 Licenses and source files per core: [PERMISSIVE_CORES.md](PERMISSIVE_CORES.md).
 
@@ -120,6 +124,21 @@ which sounds different from the real chip. To use another ROM, for example one y
 
 A new ROM applies to songs started afterwards. A file of the wrong size is ignored with a warning. Only ship a ROM
 you are allowed to distribute; Yamaha's own ROM is copyrighted.
+
+### YMF278B wave ROM
+
+The YMF278B (MoonSound) plays its instruments from the YRW801 wave ROM, a 2 MB file (2097152 bytes) that you must supply
+yourself. There is no built-in replacement: without it the wavetable part is silent and only the FM part plays. Songs that
+carry their own samples in the file play without it.
+
+1. Put the 2 MB file in your project folder.
+2. Pick it in *Project Settings → Libvgm Settings → Roms → Yrw801 Rom*.
+3. Godot doesn't export `.bin` / `.rom` files by itself: add the file (or `*.rom`) to the export preset's
+   *Resources → Filters to export non-resource files/folders*.
+
+A new ROM applies to songs started afterwards. A file of the wrong size is ignored with a warning. The YRW801 is
+copyrighted by Yamaha: exporting it with your game means your game redistributes it, which is your own legal
+responsibility.
 
 ### Filtering
 

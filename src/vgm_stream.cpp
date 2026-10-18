@@ -60,7 +60,6 @@ static const std::vector<CoreOption> *find_core_options(uint8_t p_type) {
 // libvgm can't name a chip it has no declaration for.
 static const char *unsupported_chip_name(DEV_ID p_type) {
 	switch (p_type) {
-		case DEVID_YMF278B: return "YMF278B";
 		case DEVID_32X_PWM: return "32X PWM";
 		case DEVID_WSWAN: return "WonderSwan";
 		case DEVID_VBOY_VSU: return "Virtual Boy VSU";
@@ -182,8 +181,9 @@ void VGMStream::set_data(const PackedByteArray &p_data) {
 			device.name = String::utf8(decl->name(info.devCfg));
 			if (linked) {
 				// No '/': the inspector would split the group name into nested groups. The only linked devices
-				// are the OPN chips' SSG parts (AY8910 core).
-				device.name = String::utf8(owner.devDecl->name(owner.devCfg)) + " SSG (" + device.name + ")";
+				// are the OPN chips' SSG parts (AY8910 core) and the YMF278B's FM part (YMF262 core).
+				const char *part = owner.type == DEVID_YMF278B ? " FM (" : " SSG (";
+				device.name = String::utf8(owner.devDecl->name(owner.devCfg)) + part + device.name + ")";
 			}
 			if (owner.instance > 0 && owner.instance != 0xFFFF) {
 				device.name += " #" + itos(owner.instance + 1);
