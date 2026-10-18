@@ -34,6 +34,7 @@ that core.
 | NES APU (+ FDS) | NES / Famicom, Famicom Disk System | `apu2a03` | 2A03: MIT (written for this project). FDS: written for this project from the [nesdev wiki](https://www.nesdev.org/wiki/FDS_audio), same license as this project (not chosen yet). | `apu2a03.c`, `nes_apu_2a03.c`, `nes_fds_2a03.c`, `nes_synth_2a03.h` (in the libvgm fork) |
 | RF5C68 / RF5C164 | Sega CD, FM Towns | `MAME` | BSD-3-Clause | `rf5c68.c` (not written for the RF5C164; untested there) |
 | 32X PWM | Sega 32X | `ares` | ISC ([upstream](https://github.com/ares-emulator/ares)) | `ares_32xpwm.c` (C port of ares' 32X PWM) |
+| WonderSwan sound | WonderSwan, WonderSwan Color | `ares` | ISC ([upstream](https://github.com/ares-emulator/ares)) | `ares_wswan.c` (C port of ares' WonderSwan sound unit) |
 | QSound | Capcom CPS-2 | `MAME` | BSD-3-Clause | `qsound_mame.c` |
 | SAA1099 | SAM Coupé, Creative Music System | `MAME` | BSD-3-Clause | `saa1099_mame.c` |
 | Sega PCM | Sega arcade (OutRun, After Burner) | `MAME` | BSD-3-Clause | `segapcm.c` |
@@ -67,6 +68,8 @@ The YM2612, YM2151, OPL, OPL3, OPN and OPL4 cores are C ports of their respectiv
 
 The 32X PWM core is a C port of the PWM sound of the [ares](https://github.com/ares-emulator/ares) 32X (ISC license), including its 3 entry FIFOs and DC removal filter. The output modes start as direct stereo, because most 32X VGM rips only store the timer byte of the control register.
 
+The WonderSwan core is a C port of the sound unit of the [ares](https://github.com/ares-emulator/ares) WonderSwan (ISC license): the four wave channels, voice mode, sweep, noise and the sequencer debug port. Hyper Voice and the sound DMA are not ported (Color-only ports that VGM files cannot write). The output follows what the song enables: stereo when it enables the headphone output, mono when only the speaker. The master volume register is ignored (VGM rips write 0 to it, which would mute a Color console). ares' stream filter, which does not remove the DC offset of the unsigned output, is replaced by DC removal.
+
 The YM2608 has an 8 KB rhythm ROM made by Yamaha, which can't be shipped. `ymfm_opn_rhythm.h` holds the
 [Tetorica OPNA rhythm sounds](https://github.com/kyorohiro/hello_ymfm_wasm/tree/main/assets/opna-rhythm) instead:
 six drum voices synthesized from sine waves and noise, with the same layout and encoding as the original ROM.
@@ -87,7 +90,6 @@ one of them fails with an error naming the chip.
 | VSU | Virtual Boy | `Mednafen` GPL |
 | MSM5232 | Arcade | `MAME` GPL-2.0+ |
 | ES5505 / ES5506 | Arcade, Ensoniq | no license stated |
-| WonderSwan | WonderSwan | no license stated |
 
 ## Not covered here
 
@@ -103,4 +105,6 @@ The following components also ship inside the extension and require license clea
 The copyright notice and license text of each shipped core must be included. MAME cores carry their copyright
 holders at the top of each source file, and `ymfm_fm.c`, `ymfm_adpcm.c`, `ymfm_pcm.c`, `ymfm_opn.c`, `ymfm_opm.c` and `ymfm_opl.c` (and their headers) carry ymfm's BSD-3-Clause notice.
 `ymfm_opn_rhythm.h` carries the BSD-3-Clause notice for the YM2608 rhythm sounds; it must be included too.
-`ares_32xpwm.c` carries the ISC notice of ares; it must be included too.
+`ares_32xpwm.c` and `ares_wswan.c` carry the ISC notice of ares; it must be included too.
+
+[`THIRD_PARTY_LICENSES.txt`](THIRD_PARTY_LICENSES.txt) collects all of these notices and license texts (cores, blep_filter, zlib, godot-cpp, this extension) in one file that can be shipped with a game. It must be updated when a core is added or removed.

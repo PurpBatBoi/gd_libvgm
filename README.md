@@ -45,6 +45,7 @@ Only chips with a permissively licensed (MIT / BSD-3-Clause / ISC) emulation cor
 | NES APU + FDS | NES / Famicom, Famicom Disk System | apu2a03 |
 | RF5C68 / RF5C164 | Sega CD, FM Towns | MAME |
 | 32X PWM | Sega 32X | ares |
+| WonderSwan sound | WonderSwan, WonderSwan Color | ares |
 | QSound | Capcom CPS-2 | MAME |
 | SAA1099 | SAM Coupé, Creative Music System | MAME |
 | Sega PCM | Sega arcade | MAME |
@@ -68,7 +69,7 @@ Only chips with a permissively licensed (MIT / BSD-3-Clause / ISC) emulation cor
 | BSMT2000 | Data East / pinball | MAME |
 | Mikey | Atari Lynx | laoo |
 
-**Not supported for now:** Virtual Boy VSU, MSM5232, ES5505 / ES5506, WonderSwan. Their only cores are GPL, LGPL or unlicensed.
+**Not supported for now:** Virtual Boy VSU, MSM5232, ES5505 / ES5506. Their only cores are GPL, LGPL or unlicensed.
 
 The YM2608 plays its rhythm sounds from a free replacement for Yamaha's rhythm ROM, so PC-98 drums sound different from the real chip.
 
