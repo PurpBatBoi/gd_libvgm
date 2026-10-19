@@ -100,10 +100,15 @@ license texts are in section 2).
     By: Wilbert Pol, Anthony Kruize
     License: BSD-3-Clause
 
-* NES APU, Famicom Disk System
-    Files: apu2a03.c, nes_apu_2a03.c, nes_synth_2a03.h, nes_fds_2a03.c
-    By: Purpbatboi; the band-limited synth and filters come from TetaNES by
-        Luke Petherbridge
+* NES APU
+    Files: beenes_apu.c
+    By: Shawn (L. Spiro) Wilcoxen (the APU of BeesNES, a sub-cycle-accurate NES
+        emulator, https://github.com/L-Spiro/BeesNES); C port by Purpbatboi
+    License: MIT
+
+* NES APU interface and output filters, Famicom Disk System
+    Files: beenes_intf.c, nes_filter.h, purps_fds.c
+    By: Purpbatboi
     License: MIT
 
 * RF5C68 / RF5C164
@@ -363,10 +368,10 @@ Used by the entries above that say MIT. The copyright notices that go with it:
         emu2413 v1.5.9, https://github.com/digital-sound-antiques/emu2413)
     Copyright (c) laoo  (mikey.c, C90 backport by Valley Bell; the file names
         the holder but no year)
-    Copyright (c) 2021 Luke Petherbridge <me@lukeworks.tech>  (TetaNES: the
-        band-limited synth and filters of the NES core,
-        https://github.com/lukexor/tetanes)
-    Copyright (c) 2026 Purpbatboi  (NES APU and FDS cores, blep_filter)
+    Copyright (c) 2020 Shawn (L. Spiro) Wilcoxen  (BeesNES: the NES APU core,
+        https://github.com/L-Spiro/BeesNES)
+    Copyright (c) 2026 Purpbatboi  (the C port of the BeesNES APU, the NES APU
+        interface and filters, the FDS core, blep_filter)
     Copyright (c) 2026 PurpBatBoi  (the gd_libvgm extension)
     Copyright (c) 2017-present Godot Engine contributors  (godot-cpp)
 

@@ -42,7 +42,7 @@ Only chips with a permissively licensed (MIT / BSD-3-Clause / ISC) emulation cor
 | YMF278B (OPL4) | MSX MoonSound | ymfm (needs the YRW801 wave ROM, see below) |
 | HuC6280 | PC Engine / TurboGrafx-16 | MAME |
 | Game Boy DMG | Game Boy | MAME |
-| NES APU + FDS | NES / Famicom, Famicom Disk System | apu2a03 |
+| NES APU + FDS | NES / Famicom, Famicom Disk System | BeeNES |
 | RF5C68 / RF5C164 | Sega CD, FM Towns | MAME |
 | 32X PWM | Sega 32X | ares |
 | WonderSwan sound | WonderSwan, WonderSwan Color | ares |
@@ -235,8 +235,8 @@ The library is built into `bin/<platform>/` and installed into `test_project/add
 | Path | Contents |
 |---|---|
 | `src/` | The extension: `VGMStream` (resource + settings), `VGMStreamPlayback` (rendering), file loader, project settings |
-| `thirdparty/libvgm/` | libvgm submodule: [a fork](https://github.com/PurpBatBoi/libvgm/tree/godot_libvgm) of upstream libvgm with only permissively licensed cores. It keeps one core per chip, adds the `apu2a03` NES core (`emu/cores/apu2a03.*`, `emu/cores/nes_*_2a03.*`) and a band-limited synthesis filter (`libs/blep_filter`) |
-| `tests/nes_core/` | Unit tests for the `apu2a03` NES core (`run.sh`) and a synthetic NES VGM generator |
+| `thirdparty/libvgm/` | libvgm submodule: [a fork](https://github.com/PurpBatBoi/libvgm/tree/godot_libvgm) of upstream libvgm with only permissively licensed cores. It keeps one core per chip, adds the `BeeNES` NES core (the APU of BeesNES; `emu/cores/beenes_*`, `emu/cores/purps_fds.*`, `emu/cores/nes_filter.h`) and a band-limited synthesis filter (`libs/blep_filter`) |
+| `tests/nes_core/` | Unit tests for the `BeeNES` NES core (`run.sh`) and a synthetic NES VGM generator |
 | `thirdparty/zlib/` | zlib submodule, for compressed `.vgz` files |
 | `tools/libvgm_build.py` | Compiles libvgm and zlib into the extension |
 | `doc_classes/` | Class reference shown in Godot's help |
@@ -251,6 +251,6 @@ So far the extension has only been built and tested on Linux x86_64; other platf
 ## Credits
 
 - [libvgm](https://github.com/ValleyBell/libvgm) by Valley Bell and the authors of its sound cores
-- [BeesNES](https://github.com/L-Spiro/BeesNES) by L-Spiro, `apu2a03` NES core is based on his code.
+- [BeesNES](https://github.com/L-Spiro/BeesNES) by L-Spiro, a sub-cycle-accurate NES emulator (MIT): the `BeeNES` NES core is its APU, ported to C.
 - [zlib](https://zlib.net/)
 - Build setup based on the [Godot++](https://github.com/nikoladevelops/godot-plus-plus) GDExtension template
