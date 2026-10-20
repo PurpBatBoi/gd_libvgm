@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <class name="VGMStream" inherits="AudioStream" api_type="extension" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/godotengine/godot/master/doc/class.xsd">
 	<brief_description>
-		Plays sound chip music logs (VGM/VGZ, S98, DRO, GYM) by emulating the original sound chips with libvgm.
+		Plays sound chip music logs (VGM/VGZ, S98, DRO, GYM, SPC) by emulating the original sound chips with libvgm.
 	</brief_description>
 	<description>
-		Files with the extensions [code].vgm[/code], [code].vgz[/code], [code].s98[/code], [code].dro[/code] and [code].gym[/code] load as [VGMStream] resources: assign one to an [AudioStreamPlayer] (or 2D/3D variant), or [method @GDScript.load] it from a script. Songs that use a chip with no permissively licensed core (the Virtual Boy VSU, MSM5232 or ES5506) fail to load.
+		Files with the extensions [code].vgm[/code], [code].vgz[/code], [code].s98[/code], [code].dro[/code], [code].gym[/code] and [code].spc[/code] load as [VGMStream] resources: assign one to an [AudioStreamPlayer] (or 2D/3D variant), or [method @GDScript.load] it from a script. Songs that use a chip with no permissively licensed core (the Virtual Boy VSU, MSM5232 or ES5506) fail to load.
 		All settings live on the stream and apply live to every playback of it: [member speed], [member loop_count], [member fade_time], [member ignore_song_volume], [member resampler_mode], and for each sound chip (a "device") its emulation option bits, channel muting and channel panning. To give players of the same song different values without [method Resource.duplicate], use the stream parameters below.
 		In the inspector, each chip of the song has its own group with a checkbox per channel to mute it, its named emulation options (filters and other flags) and, when the chip's emulation supports it, a pan slider per channel. These are dynamic properties named [code]chip_&lt;index&gt;_muted_channels[/code], [code]chip_&lt;index&gt;_options[/code] and [code]chip_&lt;index&gt;_pan_&lt;channel&gt;[/code]; the methods below do the same from scripts.
 		[codeblock]
@@ -74,7 +74,7 @@
 		<method name="get_format" qualifiers="const">
 			<return type="String" />
 			<description>
-				Returns the file format of the song: [code]"VGM"[/code], [code]"S98"[/code], [code]"DRO"[/code] or [code]"GYM"[/code]. Empty when the stream has no data.
+				Returns the file format of the song: [code]"VGM"[/code], [code]"S98"[/code], [code]"DRO"[/code], [code]"GYM"[/code] or [code]"SPC"[/code]. Empty when the stream has no data.
 			</description>
 		</method>
 		<method name="get_format_version" qualifiers="const">

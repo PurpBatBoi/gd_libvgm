@@ -4,7 +4,7 @@ Native playback of sound chip music in Godot 4.5+, powered by [libvgm](https://g
 
 Songs are not converted to audio files: libvgm emulates the original sound chips (SN76489, AY-3-8910, HuC6280, NES APU, Game Boy, the FM chips YM2612, YM2151, YM2413, the OPL and OPN families, and many more) in real time inside the engine. Files stay tiny, and you can change tempo, mute channels and toggle chip filters while a song plays.
 
-**Formats:** VGM / VGZ, S98, DRO (DOSBox OPL), GYM.
+**Formats:** VGM / VGZ, S98, DRO (DOSBox OPL), GYM, SPC (Super Nintendo).
 
 **Chips:** only chips with a permissively licensed (MIT / BSD) core. See [Supported chips](#supported-chips).
 
@@ -17,7 +17,7 @@ You get it from a release zip (see [Releasing](#releasing)) or by [building](#bu
 
 ## Quick start (no code)
 
-1. Put a `.vgz` / `.vgm` / `.s98` / `.dro` / `.gym` file in your project.
+1. Put a `.vgz` / `.vgm` / `.s98` / `.dro` / `.gym` / `.spc` file in your project.
 2. Add an `AudioStreamPlayer` (or the 2D / 3D variant).
 3. Drag the song from the FileSystem dock onto its **Stream** property.
 4. Tick **Autoplay** (or **Playing** to hear it in the editor).

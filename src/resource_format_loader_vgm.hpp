@@ -4,7 +4,7 @@
 
 using namespace godot;
 
-// Loads .vgm/.vgz/.s98/.dro/.gym files as VGMStream resources.
+// Loads .vgm/.vgz/.s98/.dro/.gym/.spc files as VGMStream resources.
 class ResourceFormatLoaderVGM : public ResourceFormatLoader {
 	GDCLASS(ResourceFormatLoaderVGM, ResourceFormatLoader)
 

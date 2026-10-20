@@ -61,6 +61,7 @@ that core.
 | ICS2115 | Arcade (PGM) | `MAME` | BSD-3-Clause | `ics2115.c` |
 | BSMT2000 | Data East / pinball | `MAME` | BSD-3-Clause | `bsmt2000.c` |
 | Mikey | Atari Lynx | `laoo` | MIT | `mikey.c` |
+| SNES APU (SPC700 + S-DSP) | Super Nintendo, `.spc` files | `Snaggletooth` | MIT ([upstream](https://github.com/etroimcasso/Snaggletooth)) | `snes_spc700.c`, `snes_dsp.c`, `snes_apu.c` (C port of Snaggletooth's audio unit, pinned at commit `efd5049`) |
 
 ## Unsupported chips
 

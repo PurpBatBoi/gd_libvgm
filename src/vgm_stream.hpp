@@ -16,7 +16,7 @@
 
 using namespace godot;
 
-// A song in any format libvgm plays (VGM/VGZ, S98, DRO, GYM), plus the playback settings that every
+// A song in any format libvgm plays (VGM/VGZ, S98, DRO, GYM, SPC), plus the playback settings that every
 // VGMStreamPlayback of it applies live: speed, looping, volume, resampler, and per sound-chip settings.
 // Per-chip settings are also exposed to the inspector as dynamic "chip_<index>_*" properties.
 // Song info (format, loop points, chip clocks) is read-only. Per-player speed and muted channels are Godot

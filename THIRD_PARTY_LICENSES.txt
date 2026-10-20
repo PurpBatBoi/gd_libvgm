@@ -50,6 +50,8 @@ MIT license:
   NES filters, FDS .......... Purpbatboi
   Resampler (blep_filter) ... Purpbatboi
   Atari Lynx Mikey .......... laoo
+  SNES APU (from Snaggletooth)
+                              Eric Tomasso; port by Purpbatboi
   godot-cpp ................. Godot Engine contributors
   gd_libvgm ................. PurpBatBoi
 
@@ -101,6 +103,7 @@ MIT LICENSE
 
 Copyright (c) 2001-2019 Mitsutaka Okazaki
 Copyright (c) 2020 Shawn (L. Spiro) Wilcoxen
+Copyright (c) 2026 Eric Tomasso
 Copyright (c) 2026 Purpbatboi / PurpBatBoi
 Copyright (c) laoo
 Copyright (c) 2017-present Godot Engine contributors

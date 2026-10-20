@@ -13,8 +13,8 @@ extends Control
 @onready var time_label: Label = %TimeLabel
 @onready var drop_label: Label = %DropLabel
 
-const SONG_EXTENSIONS := ["vgm", "vgz", "s98", "dro", "gym"]
-const DROP_HINT := "Drop a song file here (.vgz .vgm .s98 .dro .gym)"
+const SONG_EXTENSIONS := ["vgm", "vgz", "s98", "dro", "gym", "spc"]
+const DROP_HINT := "Drop a song file here (.vgz .vgm .s98 .dro .gym .spc)"
 
 var dragging := false
 var process_cpu := -1.0 # Share of one core; -1 where unsupported.
@@ -36,7 +36,8 @@ func _process(_delta: float) -> void:
 		return
 	title_label.text = song.get_song_tags().get("TITLE", "(untitled)")
 
-	var playback := player.get_stream_playback() as VGMStreamPlayback
+	# A finished song leaves the player inactive, and get_stream_playback() errors then.
+	var playback: VGMStreamPlayback = player.get_stream_playback() as VGMStreamPlayback if player.has_stream_playback() else null
 	var cpu := playback.get_cpu_usage() if playback else 0.0
 	var total := _process_cpu()
 	if total < 0.0:

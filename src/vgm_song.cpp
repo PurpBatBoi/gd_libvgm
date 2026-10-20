@@ -5,6 +5,7 @@
 #include "player/droplayer.hpp"
 #include "player/gymplayer.hpp"
 #include "player/s98player.hpp"
+#include "player/spcplayer.hpp"
 #include "player/vgmplayer.hpp"
 #include "utils/MemoryLoader.h"
 #include "vgm_project_settings.hpp"
@@ -14,6 +15,7 @@ VGMSong::VGMSong() {
 	player.RegisterPlayerEngine(new S98Player);
 	player.RegisterPlayerEngine(new DROPlayer);
 	player.RegisterPlayerEngine(new GYMPlayer);
+	player.RegisterPlayerEngine(new SPCPlayer);
 	player.SetFileReqCallback(on_file_request, this); // Reaches only the engines registered above.
 }
 

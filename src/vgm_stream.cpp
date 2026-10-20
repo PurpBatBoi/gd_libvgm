@@ -133,7 +133,7 @@ void VGMStream::set_data(const PackedByteArray &p_data) {
 				ERR_PRINT("VGMStream: the song uses chips with no permissively licensed core, which this build leaves out: " + unsupported + ".");
 			}
 		} else {
-			ERR_PRINT("VGMStream: data is not a file format supported by libvgm (VGM/VGZ, S98, DRO, GYM).");
+			ERR_PRINT("VGMStream: data is not a file format supported by libvgm (VGM/VGZ, S98, DRO, GYM, SPC).");
 		}
 	}
 
