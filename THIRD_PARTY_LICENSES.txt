@@ -1,317 +1,74 @@
-THIRD-PARTY LICENSES AND CREDITS
-godot_libvgm (gd_libvgm): VGM / S98 / GYM / DRO playback for Godot
-Made 2026-10-18 from the source headers of the bundled libvgm fork
-(branch godot_libvgm), thirdparty/zlib 1.3.1 and godot-cpp.
-
-==============================================================================
-READ ME FIRST  (this part is for you; you do not have to ship it)
-==============================================================================
-
-This file collects the copyright notices and license texts of everything that
-is compiled into the extension: the sound-chip emulation cores, the resampler,
-zlib, godot-cpp and the extension itself. Every one of these licenses
-(BSD-3-Clause, MIT, ISC, zlib) allows commercial use and does not make you
-release your game's source code. In exchange they ask you to keep the
-copyright notice and the license text with the software.
-
-What to do: ship everything from the line "BEGIN NOTICES" to the end of this
-file with your game, for example as a text file next to the executable, on a
-credits or licenses screen, or in the game's documentation. The BSD-3-Clause
-license (the one most cores use) asks for this explicitly for binary
-distributions. You may leave out the notices of cores you removed from your
-own build; if you ship the extension as it is, include all of them.
-
-NOT covered by this file (check these yourself):
-
-   1. The libvgm framework itself (player/, emu/*.c, the *intf.c chip
-   interface files and utils/ of the bundled libvgm -
-   https://github.com/ValleyBell/libvgm by Valley Bell and contributors). The
-   bundled copy has no license file and no license headers, so this file
-   cannot grant any rights to it. That has to be settled with its author
-   before you release a game. It is the only part of the extension that is not
-   under a license listed below.
-
-   2. Godot Engine itself. It is not part of the extension. Its own license
-   and the licenses of its third-party components are listed by the engine
-   (Help > About Godot > Third-party Licenses in the editor, or the Godot
-   website), and you have to credit them separately.
-
-   3. Data you add: music files (VGM, S98, ...) have their own copyright. ROM
-   files you give the extension (for example yrw801.rom for the YMF278B, or
-   your own YM2608 rhythm ROM) are not included in it and are not covered
-   here.
-
-To keep this file correct: when a sound core is added to or removed from
-thirdparty/libvgm/emu/cores, update the table and the copyright lines below to
-match.
-
-==============================================================================
-BEGIN NOTICES
-==============================================================================
-
-This software contains sound-chip emulation cores and other code written by
-the people and projects named below. Each part is used under the license named
-for it. The full texts of the licenses are in section 2, after the list of who
-wrote what.
+This game plays music with gd_libvgm, which contains code by the people and
+projects below. The license texts follow the credits.
 
 ------------------------------------------------------------------------------
-1. WHO WROTE WHAT
+CREDITS
 ------------------------------------------------------------------------------
 
-Each entry: the chip or component, the source files that implement it, the
-author(s) / copyright holders named in those files, and the license (the
-license texts are in section 2).
+BSD-3-Clause license:
 
-* SN76489 / SN76496 (PSG)
-    Files: sn76496.c
-    By: Nicola Salmoria
-    License: BSD-3-Clause
+  SN76489 / SN76496 ......... Nicola Salmoria
+  AY-3-8910 / YM2149 ........ Couriersud
+  ymfm FM cores (YM2612, YM2151, OPL, OPN, OPL4, YM2414)
+                              Aaron Giles
+  YM2608 rhythm sounds ...... Tetorica contributors; Aaron Giles
+  HuC6280 ................... Charles MacDonald
+  Game Boy .................. Wilbert Pol, Anthony Kruize
+  RF5C68 / RF5C164 .......... Olivier Galibert, Aaron Giles
+  QSound .................... Paul Leaman, Miguel Angel Horna
+  SAA1099 ................... Juergen Buchmueller, Manuel Abadia
+  Sega PCM .................. Hiromitsu Shioya, Olivier Galibert
+  SCSP ...................... ElSemi, R. Belmont
+  MultiPCM .................. Miguel Angel Horna
+  YMZ280B ................... Aaron Giles
+  YMF271 .................... superctr
+  C140 ...................... R. Belmont
+  C219 ...................... R. Belmont, superctr, Valley Bell
+  C352 ...................... R. Belmont, superctr
+  K051649 (SCC), K005289 .... Bryan McPhail
+  K007232 ................... Nicola Salmoria, Hiromitsu Shioya, Mao, cam900
+  K053260 ................... Ernesto Corvi, Alex W. Jackson
+  K054539 ................... Olivier Galibert
+  POKEY ..................... Brad Oliver, Eric Smith, Juergen Buchmueller
+  uPD7759 ................... Juergen Buchmueller, Mike Balfour, Howie Cohen,
+                              Olivier Galibert, Aaron Giles
+  MSM6258 ................... Barry Rodewald
+  MSM6295 ................... Mirko Buffoni, Aaron Giles
+  OKI ADPCM decoder ......... Andrew Gardner, Aaron Giles
+  MSM5205 ................... Aaron Giles, eito, cam900, Valley Bell, Mao
+  X1-010 .................... Luca Elia
+  Irem GA20 ................. Acho A. Tang, R. Belmont, Valley Bell
+  ES5503 .................... R. Belmont
+  ICS2115 ................... Alex Marshall, nimitz, austere
+  BSMT2000 .................. Aaron Giles, Paul Leaman, Miguel Angel Horna,
+                              Mao, cam900
 
-* AY-3-8910 / YM2149
-    Files: ay8910.c
-    By: Couriersud
-    License: BSD-3-Clause
+MIT license:
 
-* YM2413 (OPLL), VRC7
-    Files: emu2413.c, opll_2413tone.h, opll_vrc7tone.h, opll_281btone.h
-    By: Mitsutaka Okazaki
-    License: MIT
+  YM2413 / VRC7 (emu2413) ... Mitsutaka Okazaki
+  NES APU (from BeesNES) .... Shawn (L. Spiro) Wilcoxen; port by Purpbatboi
+  NES filters, FDS .......... Purpbatboi
+  Resampler (blep_filter) ... Purpbatboi
+  Atari Lynx Mikey .......... laoo
+  godot-cpp ................. Godot Engine contributors
+  gd_libvgm ................. PurpBatBoi
 
-* YM2612 / YM3438, YM2151, OPL / OPL2 / OPL3 / Y8950, OPN family, OPL4
-  (YMF278B), YM2414
-    Files: ymfm_fm.c, ymfm_opn.c, ymfm_opm.c, ymfm_opl.c, ymfm_adpcm.c,
-           ymfm_pcm.c (C ports of ymfm), ymfm/ (ymfm itself, used for the
-           YM2414)
-    By: Aaron Giles
-    License: BSD-3-Clause
+ISC license:
 
-* YM2608 rhythm sounds (replacement for the Yamaha ROM)
-    Files: ymfm_opn_rhythm.h
-    By: Tetorica contributors; Aaron Giles
-    License: BSD-3-Clause
+  Sega 32X PWM, WonderSwan .. ares team, Near et al
 
-* HuC6280 (PC Engine)
-    Files: c6280_mame.c
-    By: Charles MacDonald
-    License: BSD-3-Clause
+zlib license:
 
-* Game Boy DMG
-    Files: gb_mame.c
-    By: Wilbert Pol, Anthony Kruize
-    License: BSD-3-Clause
-
-* NES APU
-    Files: beesnes_apu.c
-    By: Shawn (L. Spiro) Wilcoxen (the APU of BeesNES, a sub-cycle-accurate NES
-        emulator, https://github.com/L-Spiro/BeesNES); C port by Purpbatboi
-    License: MIT
-
-* NES APU interface and output filters, Famicom Disk System
-    Files: beesnes_intf.c, nes_filter.h, purps_fds.c
-    By: Purpbatboi
-    License: MIT
-
-* RF5C68 / RF5C164
-    Files: rf5c68.c
-    By: Olivier Galibert, Aaron Giles
-    License: BSD-3-Clause
-
-* Sega 32X PWM, WonderSwan
-    Files: ares_32xpwm.c, ares_wswan.c (C ports of ares)
-    By: ares team, Near et al
-    License: ISC
-
-* QSound
-    Files: qsound_mame.c
-    By: Paul Leaman, Miguel Angel Horna
-    License: BSD-3-Clause
-
-* SAA1099
-    Files: saa1099_mame.c
-    By: Juergen Buchmueller, Manuel Abadia
-    License: BSD-3-Clause
-
-* Sega PCM
-    Files: segapcm.c
-    By: Hiromitsu Shioya, Olivier Galibert
-    License: BSD-3-Clause
-
-* SCSP (YMF292)
-    Files: scsp.c, scspdsp.c, scsplfo.c
-    By: ElSemi, R. Belmont
-    License: BSD-3-Clause
-
-* YMW258 (MultiPCM)
-    Files: multipcm.c
-    By: Miguel Angel Horna
-    License: BSD-3-Clause
-
-* YMZ280B
-    Files: ymz280b.c
-    By: Aaron Giles
-    License: BSD-3-Clause
-
-* YMF271 (OPX)
-    Files: ymf271.c
-    By: superctr
-    License: BSD-3-Clause
-
-* C140
-    Files: c140.c
-    By: R. Belmont
-    License: BSD-3-Clause
-
-* C219
-    Files: c219.c
-    By: R. Belmont, superctr, Valley Bell
-    License: BSD-3-Clause
-
-* C352
-    Files: c352.c
-    By: R. Belmont, superctr
-    License: BSD-3-Clause
-
-* K051649 (SCC)
-    Files: k051649.c
-    By: Bryan McPhail
-    License: BSD-3-Clause
-
-* K005289
-    Files: k005289.c
-    By: Bryan McPhail
-    License: BSD-3-Clause
-
-* K007232
-    Files: k007232.c
-    By: Nicola Salmoria, Hiromitsu Shioya, Mao, cam900
-    License: BSD-3-Clause
-
-* K053260
-    Files: k053260.c
-    By: Ernesto Corvi, Alex W. Jackson
-    License: BSD-3-Clause
-
-* K054539
-    Files: k054539.c
-    By: Olivier Galibert
-    License: BSD-3-Clause
-
-* POKEY
-    Files: pokey.c
-    By: Brad Oliver, Eric Smith, Juergen Buchmueller
-    License: BSD-3-Clause
-
-* uPD7759
-    Files: upd7759.c
-    By: Juergen Buchmueller, Mike Balfour, Howie Cohen, Olivier Galibert,
-        Aaron Giles
-    License: BSD-3-Clause
-
-* MSM6258
-    Files: okim6258.c
-    By: Barry Rodewald
-    License: BSD-3-Clause
-
-* MSM6295
-    Files: okim6295.c
-    By: Mirko Buffoni, Aaron Giles
-    License: BSD-3-Clause
-
-* MSM6295 / MSM6258 ADPCM decoder
-    Files: okiadpcm.c
-    By: Andrew Gardner, Aaron Giles
-    License: BSD-3-Clause
-
-* MSM5205
-    Files: msm5205.c
-    By: Aaron Giles; eito, cam900, Valley Bell, Mao
-    License: BSD-3-Clause
-
-* X1-010
-    Files: x1_010.c
-    By: Luca Elia
-    License: BSD-3-Clause
-
-* Irem GA20
-    Files: iremga20.c
-    By: Acho A. Tang, R. Belmont, Valley Bell
-    License: BSD-3-Clause
-
-* ES5503
-    Files: es5503.c
-    By: R. Belmont
-    License: BSD-3-Clause
-
-* ICS2115
-    Files: ics2115.c
-    By: Alex Marshall, nimitz, austere
-    License: BSD-3-Clause
-
-* BSMT2000
-    Files: bsmt2000.c
-    By: Aaron Giles, Paul Leaman, Miguel Angel Horna, Mao, cam900
-    License: BSD-3-Clause
-
-* Mikey (Atari Lynx)
-    Files: mikey.c (C90 backport by Valley Bell)
-    By: laoo
-    License: MIT
-
-* YM2413 tone data inside emu2413
-    Credits given by emu2413: YM2413 presets by Mitsutaka Okazaki; VRC7
-    presets dumped with the VRC7 debug mode by Nuke.YKT; YMF281B presets by
-    Chabin; the YM2413 notes by andete; ymf262.c by Jarek Burczynski.
-
-* Resampling (libs/blep_filter)
-    Files: libs/blep_filter/blep_filter.c, blep_filter.h
-    By: Purpbatboi
-    License: MIT
-
-* zlib 1.3.1 (reads compressed .vgz files)
-    Files: thirdparty/zlib
-    By: Jean-loup Gailly and Mark Adler
-    License: zlib
-
-* godot-cpp (the Godot C++ bindings the extension is built with)
-    Files: godot-cpp/
-    By: Godot Engine contributors
-    License: MIT
-
-* The extension (gd_libvgm)
-    Files: src/
-    By: PurpBatBoi
-    License: MIT
-
-Many cores were adapted for libvgm (C90 backports and interface code) by
-Valley Bell and other libvgm contributors; where those people are named in a
-source file, they are named above.
+  zlib ...................... Jean-loup Gailly and Mark Adler
 
 ------------------------------------------------------------------------------
-2. LICENSE TEXTS
+BSD-3-CLAUSE LICENSE
 ------------------------------------------------------------------------------
 
-..............................................................................
-2.1 BSD-3-Clause  (most of the cores)
-..............................................................................
-
-Used by every entry above that says BSD-3-Clause: the ymfm family, the
-Tetorica YM2608 rhythm sounds, and the cores that come from MAME. The source
-files of the MAME cores name their copyright holders but no year. The
-copyright holders of all the BSD-3-Clause parts are:
-
-    Aaron Giles; Acho A. Tang; Alex Marshall; Alex W. Jackson; Andrew Gardner;
-    Anthony Kruize; austere; Barry Rodewald; Brad Oliver; Bryan McPhail;
-    cam900; Charles MacDonald; Couriersud; eito; ElSemi; Eric Smith; Ernesto
-    Corvi; Hiromitsu Shioya; Howie Cohen; Juergen Buchmueller; Luca Elia;
-    Manuel Abadia; Mao; Miguel Angel Horna; Mike Balfour; Mirko Buffoni;
-    Nicola Salmoria; nimitz; Olivier Galibert; Paul Leaman; R. Belmont;
-    superctr; Tetorica contributors; Valley Bell; Wilbert Pol
-
-    Copyright (c) 2021, Aaron Giles  (ymfm, and the ymfm ADPCM-A decoding
-        parameters)
-    Copyright (c) 2026, Tetorica contributors  (YM2608 rhythm sounds)
-    Copyright (c) the holders named above, for each of their cores
-    All rights reserved.
+Copyright (c) 2021, Aaron Giles
+Copyright (c) 2026, Tetorica contributors
+Copyright (c) the other BSD-3-Clause authors listed in the credits above
+All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -338,42 +95,15 @@ CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-..............................................................................
-2.2 ISC License  (Sega 32X PWM and WonderSwan, from ares)
-..............................................................................
+------------------------------------------------------------------------------
+MIT LICENSE
+------------------------------------------------------------------------------
 
-    Copyright (c) 2004-2025 ares team, Near et al
-    https://github.com/ares-emulator/ares
-
-Permission to use, copy, modify, and/or distribute this software for any
-purpose with or without fee is hereby granted, provided that the above
-copyright notice and this permission notice appear in all copies.
-
-THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
-WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
-MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
-ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
-WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
-ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
-OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
-
-..............................................................................
-2.3 MIT License
-..............................................................................
-
-Used by the entries above that say MIT. The copyright notices that go with it:
-
-    Copyright (c) 2001-2019 Mitsutaka Okazaki  (emu2413, from its upstream
-        LICENSE; the source file says "Copyright (C) 2020 Mitsutaka Okazaki",
-        emu2413 v1.5.9, https://github.com/digital-sound-antiques/emu2413)
-    Copyright (c) laoo  (mikey.c, C90 backport by Valley Bell; the file names
-        the holder but no year)
-    Copyright (c) 2020 Shawn (L. Spiro) Wilcoxen  (BeesNES: the NES APU core,
-        https://github.com/L-Spiro/BeesNES)
-    Copyright (c) 2026 Purpbatboi  (the C port of the BeesNES APU, the NES APU
-        interface and filters, the FDS core, blep_filter)
-    Copyright (c) 2026 PurpBatBoi  (the gd_libvgm extension)
-    Copyright (c) 2017-present Godot Engine contributors  (godot-cpp)
+Copyright (c) 2001-2019 Mitsutaka Okazaki
+Copyright (c) 2020 Shawn (L. Spiro) Wilcoxen
+Copyright (c) 2026 Purpbatboi / PurpBatBoi
+Copyright (c) laoo
+Copyright (c) 2017-present Godot Engine contributors
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -393,31 +123,42 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
-..............................................................................
-2.4 zlib License  (zlib 1.3.1)
-..............................................................................
+------------------------------------------------------------------------------
+ISC LICENSE
+------------------------------------------------------------------------------
+
+Copyright (c) 2004-2025 ares team, Near et al
+
+Permission to use, copy, modify, and/or distribute this software for any
+purpose with or without fee is hereby granted, provided that the above
+copyright notice and this permission notice appear in all copies.
+
+THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+
+------------------------------------------------------------------------------
+ZLIB LICENSE
+------------------------------------------------------------------------------
 
 (C) 1995-2022 Jean-loup Gailly and Mark Adler
 
-  This software is provided 'as-is', without any express or implied
-  warranty.  In no event will the authors be held liable for any damages
-  arising from the use of this software.
+This software is provided 'as-is', without any express or implied
+warranty.  In no event will the authors be held liable for any damages
+arising from the use of this software.
 
-  Permission is granted to anyone to use this software for any purpose,
-  including commercial applications, and to alter it and redistribute it
-  freely, subject to the following restrictions:
+Permission is granted to anyone to use this software for any purpose,
+including commercial applications, and to alter it and redistribute it
+freely, subject to the following restrictions:
 
-  1. The origin of this software must not be misrepresented; you must not
-     claim that you wrote the original software. If you use this software
-     in a product, an acknowledgment in the product documentation would be
-     appreciated but is not required.
-  2. Altered source versions must be plainly marked as such, and must not be
-     misrepresented as being the original software.
-  3. This notice may not be removed or altered from any source distribution.
-
-  Jean-loup Gailly        Mark Adler
-  jloup@gzip.org          madler@alumni.caltech.edu
-
-==============================================================================
-END OF NOTICES
-==============================================================================
+1. The origin of this software must not be misrepresented; you must not
+   claim that you wrote the original software. If you use this software
+   in a product, an acknowledgment in the product documentation would be
+   appreciated but is not required.
+2. Altered source versions must be plainly marked as such, and must not be
+   misrepresented as being the original software.
+3. This notice may not be removed or altered from any source distribution.
