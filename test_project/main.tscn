@@ -1,5 +1,0 @@
-[gd_scene format=3 uid="uid://hn8dh5y3yq6a"]
-
-[node name="Main" type="Node2D" unique_id=2124938054]
-
-[node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="." unique_id=252385241]

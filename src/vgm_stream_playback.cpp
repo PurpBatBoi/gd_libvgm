@@ -1,6 +1,7 @@
 #include "vgm_stream_playback.hpp"
 
 #include <algorithm>
+#include <chrono>
 #include <iterator>
 
 #include <godot_cpp/classes/audio_server.hpp>
@@ -11,12 +12,19 @@
 
 #include "player/vgmplayer.hpp"
 #include "vgm_project_settings.hpp"
+#include "vgm_util.hpp"
 
 // The sampled editor-preview render: PREVIEW_SEGMENTS evenly spaced windows of real audio.
 static constexpr int PREVIEW_SEGMENTS = 256;
 static constexpr double PREVIEW_WINDOW_SECONDS = 0.01;
 
+// Time constant of the get_cpu_usage() moving average.
+static constexpr double CPU_USAGE_SMOOTHING_SECONDS = 0.5;
+
 void VGMStreamPlayback::_bind_methods() {
+	ClassDB::bind_method(D_METHOD("get_cpu_usage"), &VGMStreamPlayback::get_cpu_usage);
+	ClassDB::bind_method(D_METHOD("get_memory_usage"), &VGMStreamPlayback::get_memory_usage);
+
 	ADD_SIGNAL(MethodInfo("looped", PropertyInfo(Variant::INT, "loop")));
 	ADD_SIGNAL(MethodInfo("fade_started"));
 }
@@ -99,13 +107,17 @@ void VGMStreamPlayback::apply_settings(const VGMStream::PlaybackSettings &p_sett
 
 // Caller holds mutex. Starts from the beginning with the applied settings; libvgm needs a fresh load for that.
 bool VGMStreamPlayback::restart() {
+	song.unload(); // So the heap growth below is this song alone.
+	const size_t heap_before = heap_bytes_in_use();
 	if (!song.reload()) {
 		return false;
 	}
 	apply_settings(applied);
-	song.player.Start();
+	song.player.Start(); // Creates the chip emulators.
+	memory_usage = (int64_t)heap_bytes_in_use() - (int64_t)heap_before;
 	pending_loop = 0;
 	fade_reported = false;
+	cpu_usage = 0.0;
 	return true;
 }
 
@@ -226,8 +238,31 @@ int32_t VGMStreamPlayback::render_frames(AudioFrame *p_dst, int32_t p_frame_coun
 }
 
 // Caller holds mutex.
+void VGMStreamPlayback::record_cpu_usage(double p_busy_seconds, int32_t p_frames) {
+	if (p_frames <= 0) {
+		return;
+	}
+	const double audio_seconds = (double)p_frames / sample_rate;
+	const double weight = MIN(audio_seconds / CPU_USAGE_SMOOTHING_SECONDS, 1.0);
+	cpu_usage += (p_busy_seconds / audio_seconds - cpu_usage) * weight;
+}
+
+// Smoothed over about CPU_USAGE_SMOOTHING_SECONDS. A mutex wait is not counted; preemption is.
+double VGMStreamPlayback::get_cpu_usage() const {
+	std::lock_guard<std::mutex> lock(mutex);
+	return active ? cpu_usage : 0.0;
+}
+
+int64_t VGMStreamPlayback::get_memory_usage() const {
+	std::lock_guard<std::mutex> lock(mutex);
+	return active ? MAX(memory_usage, (int64_t)0) : 0;
+}
+
+// Caller holds mutex.
 int32_t VGMStreamPlayback::mix_song(AudioFrame *p_dst, int32_t p_frame_count) {
+	const auto start = std::chrono::steady_clock::now();
 	const int32_t mixed = render_frames(p_dst, p_frame_count);
+	record_cpu_usage(std::chrono::duration<double>(std::chrono::steady_clock::now() - start).count(), mixed);
 	PlayerA &player = song.player;
 	// Signals are deferred: this runs on the audio thread.
 	if (pending_loop) {

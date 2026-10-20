@@ -14,6 +14,22 @@
 	</description>
 	<tutorials>
 	</tutorials>
+	<methods>
+		<method name="get_cpu_usage" qualifiers="const">
+			<return type="float" />
+			<description>
+				Returns how much of real time the audio thread spends emulating this song, averaged over about half a second: [code]0.1[/code] is 10% of one core's time. At [code]1.0[/code] or more, the emulation cannot keep up and the audio stutters. Returns [code]0[/code] when the song is not playing.
+				This is wall-clock time, so a busy system can raise it. It is not the cost of the rest of the audio pipeline.
+			</description>
+		</method>
+		<method name="get_memory_usage" qualifiers="const">
+			<return type="int" />
+			<description>
+				Returns the bytes of memory this song uses, measured as the C heap growth while its file and chip emulators were set up: the song data plus every emulated chip's state. Returns [code]0[/code] when the song is not playing, or on platforms that cannot measure it (only Linux with glibc can).
+				This is approximate: memory that other threads allocate during the setup is counted too. It is memory outside Godot's own tracking, so it is not part of [method OS.get_static_memory_usage].
+			</description>
+		</method>
+	</methods>
 	<signals>
 		<signal name="fade_started">
 			<description>

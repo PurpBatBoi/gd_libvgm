@@ -24,6 +24,8 @@ public:
 	// Loads the current file again. Needed before every Start(): libvgm's Stop() discards the
 	// device configuration that only LoadFile() builds.
 	bool reload();
+	// Releases the file and its devices. Safe to call when nothing is loaded.
+	void unload();
 
 	PlayerA player;
 
@@ -33,7 +35,6 @@ private:
 	uint32_t sample_rate = 0;
 	DATA_LOADER *loader = nullptr;
 
-	void unload();
 	// libvgm asks for external ROM files by name while it starts a song's chips.
 	static DATA_LOADER *on_file_request(void *p_user, PlayerBase *p_player, const char *p_name);
 };

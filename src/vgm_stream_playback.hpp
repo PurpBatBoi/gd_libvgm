@@ -34,6 +34,9 @@ public:
 	void _set_parameter(const StringName &p_name, const Variant &p_value) override;
 	Variant _get_parameter(const StringName &p_name) const override;
 
+	double get_cpu_usage() const;
+	int64_t get_memory_usage() const;
+
 protected:
 	static void _bind_methods();
 
@@ -66,8 +69,11 @@ private:
 	uint32_t pending_loop = 0; // Loop number reported by the library, not yet signaled.
 	bool fade_reported = false;
 	uint64_t preview_position = 0; // Frames produced so far by the editor-preview render.
+	double cpu_usage = 0.0; // Smoothed emulation time / audio time; see get_cpu_usage().
+	int64_t memory_usage = 0; // Heap growth of the last restart(); see get_memory_usage().
 
 	VGMStream::PlaybackSettings merged_settings() const;
+	void record_cpu_usage(double p_busy_seconds, int32_t p_frames);
 	void apply_settings(const VGMStream::PlaybackSettings &p_settings);
 	bool restart();
 	void sync_settings();

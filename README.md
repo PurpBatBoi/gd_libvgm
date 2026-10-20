@@ -2,7 +2,7 @@
 
 Native playback of sound chip music in Godot 4.7+, powered by [libvgm](https://github.com/ValleyBell/libvgm).
 
-Songs are not converted to audio files: libvgm emulates the original sound chips (SN76489, AY-3-8910, HuC6280, NES APU, Game Boy, YM2413 and many more) in real time inside the engine. Files stay tiny, and you can change tempo, mute channels and toggle chip filters while a song plays.
+Songs are not converted to audio files: libvgm emulates the original sound chips (SN76489, AY-3-8910, HuC6280, NES APU, Game Boy, the FM chips YM2612, YM2151, YM2413, the OPL and OPN families, and many more) in real time inside the engine. Files stay tiny, and you can change tempo, mute channels and toggle chip filters while a song plays.
 
 **Formats:** VGM / VGZ, S98, DRO (DOSBox OPL), GYM.
 
@@ -42,7 +42,7 @@ Only chips with a permissively licensed (MIT / BSD-3-Clause / ISC) emulation cor
 | YMF278B (OPL4) | MSX MoonSound | ymfm (needs the YRW801 wave ROM, see below) |
 | HuC6280 | PC Engine / TurboGrafx-16 | MAME |
 | Game Boy DMG | Game Boy | MAME |
-| NES APU + FDS | NES / Famicom, Famicom Disk System | BeeNES |
+| NES APU + FDS | NES / Famicom, Famicom Disk System | BeesNES |
 | RF5C68 / RF5C164 | Sega CD, FM Towns | MAME |
 | 32X PWM | Sega 32X | ares |
 | WonderSwan sound | WonderSwan, WonderSwan Color | ares |
@@ -191,6 +191,8 @@ playback.fade_started.connect(func(): print("fading out"))
 
 Signals arrive when audio is mixed, ahead of what you hear by about `AudioServer.get_output_latency()`.
 
+`playback.get_cpu_usage()` returns the share of real time the audio thread spends emulating the song (`0.1` = 10%), and `playback.get_memory_usage()` the song's memory in bytes (Linux/glibc only, `0` elsewhere). `test_project/demo.tscn` shows both with process and Godot RAM and a seekable timeline: assign a song to its `AudioStreamPlayer` and run the scene.
+
 Per-player values, without `duplicate()`:
 
 ```gdscript
@@ -235,8 +237,7 @@ The library is built into `bin/<platform>/` and installed into `test_project/add
 | Path | Contents |
 |---|---|
 | `src/` | The extension: `VGMStream` (resource + settings), `VGMStreamPlayback` (rendering), file loader, project settings |
-| `thirdparty/libvgm/` | libvgm submodule: [a fork](https://github.com/PurpBatBoi/libvgm/tree/godot_libvgm) of upstream libvgm with only permissively licensed cores. It keeps one core per chip, adds the `BeeNES` NES core (the APU of BeesNES; `emu/cores/beenes_*`, `emu/cores/purps_fds.*`, `emu/cores/nes_filter.h`) and a band-limited synthesis filter (`libs/blep_filter`) |
-| `tests/nes_core/` | Unit tests for the `BeeNES` NES core (`run.sh`) and a synthetic NES VGM generator |
+| `thirdparty/libvgm/` | libvgm submodule: [a fork](https://github.com/PurpBatBoi/libvgm/tree/godot_libvgm) of upstream libvgm with only permissively licensed cores. It keeps one core per chip, adds the `BeesNES` NES core (the APU of BeesNES; `emu/cores/beesnes_*`, `emu/cores/purps_fds.*`, `emu/cores/nes_filter.h`) and a band-limited synthesis filter (`libs/blep_filter`) |
 | `thirdparty/zlib/` | zlib submodule, for compressed `.vgz` files |
 | `tools/libvgm_build.py` | Compiles libvgm and zlib into the extension |
 | `doc_classes/` | Class reference shown in Godot's help |
@@ -251,6 +252,6 @@ So far the extension has only been built and tested on Linux x86_64; other platf
 ## Credits
 
 - [libvgm](https://github.com/ValleyBell/libvgm) by Valley Bell and the authors of its sound cores
-- [BeesNES](https://github.com/L-Spiro/BeesNES) by L-Spiro, a sub-cycle-accurate NES emulator (MIT): the `BeeNES` NES core is its APU, ported to C.
+- [BeesNES](https://github.com/L-Spiro/BeesNES) by L-Spiro, a sub-cycle-accurate NES emulator (MIT): the `BeesNES` NES core is its APU, ported to C.
 - [zlib](https://zlib.net/)
 - Build setup based on the [Godot++](https://github.com/nikoladevelops/godot-plus-plus) GDExtension template

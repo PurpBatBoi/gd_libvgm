@@ -1,6 +1,10 @@
 #pragma once
 
 #include <cstdint>
+#include <cstdlib>
+#if defined(__GLIBC__)
+#include <malloc.h>
+#endif
 
 #include <godot_cpp/variant/char_utils.hpp>
 #include <godot_cpp/variant/string.hpp>
@@ -16,4 +20,14 @@ inline String to_identifier(const String &p_text) {
 		}
 	}
 	return result;
+}
+
+// Bytes the C heap holds in live allocations. 0 where the platform cannot tell (only glibc 2.33+ can).
+inline size_t heap_bytes_in_use() {
+#if defined(__GLIBC__) && __GLIBC_PREREQ(2, 33)
+	const struct mallinfo2 info = mallinfo2();
+	return info.uordblks + info.hblkhd;
+#else
+	return 0;
+#endif
 }

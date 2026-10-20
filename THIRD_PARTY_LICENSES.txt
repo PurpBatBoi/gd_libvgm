@@ -101,13 +101,13 @@ license texts are in section 2).
     License: BSD-3-Clause
 
 * NES APU
-    Files: beenes_apu.c
+    Files: beesnes_apu.c
     By: Shawn (L. Spiro) Wilcoxen (the APU of BeesNES, a sub-cycle-accurate NES
         emulator, https://github.com/L-Spiro/BeesNES); C port by Purpbatboi
     License: MIT
 
 * NES APU interface and output filters, Famicom Disk System
-    Files: beenes_intf.c, nes_filter.h, purps_fds.c
+    Files: beesnes_intf.c, nes_filter.h, purps_fds.c
     By: Purpbatboi
     License: MIT
 

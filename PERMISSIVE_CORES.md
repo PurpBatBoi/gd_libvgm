@@ -31,7 +31,7 @@ that core.
 | YMF278B (OPL4) | MSX MoonSound | `ymfm` | BSD-3-Clause ([upstream](https://github.com/aaronsgiles/ymfm)) | `ymfm_opl.c`, `ymfm_pcm.c` (C port of ymfm's wavetable part and register interface; the FM part uses the YMF262 core) |
 | HuC6280 | PC Engine / TurboGrafx-16 | `MAME` | BSD-3-Clause | `c6280_mame.c` |
 | Game Boy DMG | Game Boy | `MAME` | BSD-3-Clause | `gb_mame.c` |
-| NES APU (+ FDS) | NES / Famicom, Famicom Disk System | `BeeNES` | 2A03: MIT, the APU of [BeesNES](https://github.com/L-Spiro/BeesNES) (L-Spiro's sub-cycle-accurate NES emulator) ported to C. FDS (`purps_fds`): written for this project from the [nesdev wiki](https://www.nesdev.org/wiki/FDS_audio), same license as this project (not chosen yet). | `beenes_apu.c`, `beenes_intf.c`, `purps_fds.c`, `nes_filter.h` (in the libvgm fork) |
+| NES APU (+ FDS) | NES / Famicom, Famicom Disk System | `BeesNES` | 2A03: MIT, the APU of [BeesNES](https://github.com/L-Spiro/BeesNES) (L-Spiro's sub-cycle-accurate NES emulator) ported to C. FDS (`purps_fds`): written for this project from the [nesdev wiki](https://www.nesdev.org/wiki/FDS_audio), same license as this project (not chosen yet). | `beesnes_apu.c`, `beesnes_intf.c`, `purps_fds.c`, `nes_filter.h` (in the libvgm fork) |
 | RF5C68 / RF5C164 | Sega CD, FM Towns | `MAME` | BSD-3-Clause | `rf5c68.c` (not written for the RF5C164; untested there) |
 | 32X PWM | Sega 32X | `ares` | ISC ([upstream](https://github.com/ares-emulator/ares)) | `ares_32xpwm.c` (C port of ares' 32X PWM) |
 | WonderSwan sound | WonderSwan, WonderSwan Color | `ares` | ISC ([upstream](https://github.com/ares-emulator/ares)) | `ares_wswan.c` (C port of ares' WonderSwan sound unit) |
@@ -61,24 +61,6 @@ that core.
 | ICS2115 | Arcade (PGM) | `MAME` | BSD-3-Clause | `ics2115.c` |
 | BSMT2000 | Data East / pinball | `MAME` | BSD-3-Clause | `bsmt2000.c` |
 | Mikey | Atari Lynx | `laoo` | MIT | `mikey.c` |
-
-`BeeNES` is not an original core: it is the APU of BeesNES, ported to C for libvgm. Its libvgm interface (`beenes_intf.c`), output filters (`nes_filter.h`) and FDS (`purps_fds.c`) were written for this project.
-
-The YM2612, YM2151, OPL, OPL3, OPN and OPL4 cores are C ports of their respective [ymfm](https://github.com/aaronsgiles/ymfm) cores.
-
-The 32X PWM core is a C port of the PWM sound of the [ares](https://github.com/ares-emulator/ares) 32X (ISC license), including its 3 entry FIFOs and DC removal filter. The output modes start as direct stereo, because most 32X VGM rips only store the timer byte of the control register.
-
-The WonderSwan core is a C port of the sound unit of the [ares](https://github.com/ares-emulator/ares) WonderSwan (ISC license): the four wave channels, voice mode, sweep, noise and the sequencer debug port. Hyper Voice and the sound DMA are not ported (Color-only ports that VGM files cannot write). The output follows what the song enables: stereo when it enables the headphone output, mono when only the speaker. The master volume register is ignored (VGM rips write 0 to it, which would mute a Color console). ares' stream filter, which does not remove the DC offset of the unsigned output, is replaced by DC removal.
-
-The YM2608 has an 8 KB rhythm ROM made by Yamaha, which can't be shipped. `ymfm_opn_rhythm.h` holds the
-[Tetorica OPNA rhythm sounds](https://github.com/kyorohiro/hello_ymfm_wasm/tree/main/assets/opna-rhythm) instead:
-six drum voices synthesized from sine waves and noise, with the same layout and encoding as the original ROM.
-They contain no Yamaha data, so YM2608 drums sound different from the real chip. The ROM was regenerated from
-its generator script and matched byte for byte.
-
-The YMF278B needs the YRW801 wave ROM (2 MB, made by Yamaha), which can't be shipped and has no free replacement.
-Without it the wavetable part has no samples. Users supply their own file in the project settings
-(see the README); the developer is responsible for the license if the game ships it.
 
 ## Unsupported chips
 
