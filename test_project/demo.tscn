@@ -12,7 +12,6 @@ grow_vertical = 2
 script = ExtResource("1_demo")
 
 [node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="." unique_id=1109495131]
-volume_db = -15.819
 autoplay = true
 
 [node name="Margin" type="MarginContainer" parent="." unique_id=441437477]
