@@ -255,5 +255,6 @@ So far the extension has only been built and tested on Linux x86_64; other platf
 
 - [libvgm](https://github.com/ValleyBell/libvgm) by Valley Bell and the authors of its sound cores
 - [BeesNES](https://github.com/L-Spiro/BeesNES) by L-Spiro, a sub-cycle-accurate NES emulator (MIT): the `BeesNES` NES core is its APU, ported to C.
+- [ares](https://github.com/ares-emulator/ares), a multi-system emulator (ISC): the `ares` 32X PWM and WonderSwan sound cores are C ports of its sound units.
 - [zlib](https://zlib.net/)
 - Build setup based on the [Godot++](https://github.com/nikoladevelops/godot-plus-plus) GDExtension template
