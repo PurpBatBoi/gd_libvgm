@@ -61,4 +61,4 @@ ios.release = {
 }
 
 [icons]
-ItemData = "./icons/ItemData.svg"
+VGMStream = "./icons/VGMStream.svg"
