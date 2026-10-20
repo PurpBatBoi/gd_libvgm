@@ -1,6 +1,6 @@
 [configuration]
 entry_symbol = "gd_libvgm_init"
-compatibility_minimum = "4.7"
+compatibility_minimum = "4.5"
 reloadable = true
 
 [libraries]
