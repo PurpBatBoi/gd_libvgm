@@ -108,13 +108,15 @@ void VGMStreamPlayback::apply_settings(const VGMStream::PlaybackSettings &p_sett
 // Caller holds mutex. Starts from the beginning with the applied settings; libvgm needs a fresh load for that.
 bool VGMStreamPlayback::restart() {
 	song.unload(); // So the heap growth below is this song alone.
-	const size_t heap_before = heap_bytes_in_use();
+	// mallinfo2 walks the whole heap, which is large in the editor, and every thumbnail restarts a song.
+	const bool measure_memory = !in_editor;
+	const size_t heap_before = measure_memory ? heap_bytes_in_use() : 0;
 	if (!song.reload()) {
 		return false;
 	}
 	apply_settings(applied);
 	song.player.Start(); // Creates the chip emulators.
-	memory_usage = (int64_t)heap_bytes_in_use() - (int64_t)heap_before;
+	memory_usage = measure_memory ? (int64_t)heap_bytes_in_use() - (int64_t)heap_before : 0;
 	pending_loop = 0;
 	fade_reported = false;
 	cpu_usage = 0.0;

@@ -25,7 +25,7 @@
 		<method name="get_memory_usage" qualifiers="const">
 			<return type="int" />
 			<description>
-				Returns the bytes of memory this song uses, measured as the C heap growth while its file and chip emulators were set up: the song data plus every emulated chip's state. Returns [code]0[/code] when the song is not playing, or on platforms that cannot measure it (only Linux with glibc can).
+				Returns the bytes of memory this song uses, measured as the C heap growth while its file and chip emulators were set up: the song data plus every emulated chip's state. Returns [code]0[/code] when the song is not playing, in the editor, or on platforms that cannot measure it (only Linux with glibc can).
 				This is approximate: memory that other threads allocate during the setup is counted too. It is memory outside Godot's own tracking, so it is not part of [method OS.get_static_memory_usage].
 			</description>
 		</method>
