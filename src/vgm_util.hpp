@@ -2,8 +2,12 @@
 
 #include <cstdint>
 #include <cstdlib>
+// mallinfo2() exists from glibc 2.33. __GLIBC_PREREQ is only defined on glibc, so it can't share an #if with defined().
 #if defined(__GLIBC__)
 #include <malloc.h>
+#if __GLIBC_PREREQ(2, 33)
+#define VGM_HAS_MALLINFO2 1
+#endif
 #endif
 
 #include <godot_cpp/variant/char_utils.hpp>
@@ -24,7 +28,7 @@ inline String to_identifier(const String &p_text) {
 
 // Bytes the C heap holds in live allocations. 0 where the platform cannot tell (only glibc 2.33+ can).
 inline size_t heap_bytes_in_use() {
-#if defined(__GLIBC__) && __GLIBC_PREREQ(2, 33)
+#ifdef VGM_HAS_MALLINFO2
 	const struct mallinfo2 info = mallinfo2();
 	return info.uordblks + info.hblkhd;
 #else
