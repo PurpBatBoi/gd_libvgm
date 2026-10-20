@@ -45,6 +45,12 @@ def _build_inheritance_map(api: dict[str, Any]) -> dict[str, str | None]:
     return {str(cls.get("name", "")): cls.get("inherits") for cls in api.get("classes", []) if isinstance(cls, dict)}
 
 
+def _native_structure_names(api: dict[str, Any]) -> set[str]:
+    # Types like AudioFrame are native structures, not classes, but the bindings still need them enabled
+    # (e.g. AudioStreamPlaybackResampled::_mix_resampled takes an AudioFrame*, and is skipped without it).
+    return {str(s["name"]) for s in api.get("native_structures", []) if isinstance(s, dict) and "name" in s}
+
+
 def _inherits_from(class_name: str, base_name: str, class_map: Mapping[str, str | None]) -> bool:
     seen = set()
     current = class_name
@@ -131,7 +137,7 @@ def find_used_classes(api_path: Path) -> set[str]:
 
     api_content = read_file(api_path)
     api = json.loads(api_content)
-    valid_classes = {cls.get("name") for cls in api.get("classes", [])}
+    valid_classes = {cls.get("name") for cls in api.get("classes", [])} | _native_structure_names(api)
 
     filename_to_class: dict[str, str] = {}
 
@@ -141,8 +147,7 @@ def find_used_classes(api_path: Path) -> set[str]:
         snake = s2.lower().replace('2_d', '2d').replace('3_d', '3d')
         return snake
 
-    for cls in api.get("classes", []):
-        name = cls.get("name")
+    for name in sorted(valid_classes):
         snake = pascal_to_snake(name)
         filename_to_class[snake] = name
         filename_to_class[name.lower()] = name
@@ -215,7 +220,7 @@ def edit_custom_profile(profile_path: Path, api_path: Path) -> None:
             if cls in class_map:
                 all_needed |= get_all_ancestors(cls, class_map)
 
-        all_classes = set(class_map.keys())
+        all_classes = set(class_map.keys()) | _native_structure_names(api)
         all_needed = sorted(all_needed & all_classes)
 
         if not all_needed:

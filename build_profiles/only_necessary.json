@@ -26,6 +26,7 @@
         "Noise",
         "OS",
         "Object",
+        "ObjectID",
         "ProjectSettings",
         "Range",
         "RefCounted",
