@@ -191,7 +191,9 @@ playback.fade_started.connect(func(): print("fading out"))
 
 Signals arrive when audio is mixed, ahead of what you hear by about `AudioServer.get_output_latency()`.
 
-`playback.get_cpu_usage()` returns the share of real time the audio thread spends emulating the song (`0.1` = 10%), and `playback.get_memory_usage()` the song's memory in bytes (Linux/glibc only, `0` elsewhere). `test_project/demo.tscn` shows both with process and Godot RAM and a seekable timeline: assign a song to its `AudioStreamPlayer` and run the scene.
+`playback.get_cpu_usage()` returns the share of real time the audio thread spends emulating the song (`0.1` = 10%), and `playback.get_memory_usage()` the song's memory in bytes (Linux/glibc only, `0` elsewhere and in the editor).
+
+`test_project/demo.tscn` shows both calls. Everything else in it is plain GDScript in `demo.gd`, specific to the demo and not part of the extension: the process and Godot RAM/CPU readouts (Linux only), the seekable timeline, and drag and drop. Assign a song to its `AudioStreamPlayer` and run the scene, or drop a song file onto the running window; the demo loads it with `load()` and plays it.
 
 Per-player values, without `duplicate()`:
 

@@ -1,6 +1,8 @@
 extends Control
 ## Shows CPU, RAM and a seekable timeline for the song playing on $AudioStreamPlayer.
-## Assign a VGMStream to the player's Stream property in the inspector, then run this scene.
+## Assign a VGMStream to the player's Stream property in the inspector, then run this scene,
+## or drop a song file onto the window. Only get_cpu_usage() and get_memory_usage() come from the
+## extension; the timeline, RAM/CPU readouts and drag and drop are this demo's own code.
 
 @onready var player: AudioStreamPlayer = $AudioStreamPlayer
 @onready var title_label: Label = %Title
@@ -9,6 +11,10 @@ extends Control
 @onready var ram_label: Label = %RamLabel
 @onready var timeline: HSlider = %Timeline
 @onready var time_label: Label = %TimeLabel
+@onready var drop_label: Label = %DropLabel
+
+const SONG_EXTENSIONS := ["vgm", "vgz", "s98", "dro", "gym"]
+const DROP_HINT := "Drop a song file here (.vgz .vgm .s98 .dro .gym)"
 
 var dragging := false
 var process_cpu := -1.0 # Share of one core; -1 where unsupported.
@@ -19,6 +25,8 @@ var cpu_sample_msec := 0
 func _ready() -> void:
 	timeline.drag_started.connect(func(): dragging = true)
 	timeline.drag_ended.connect(_on_drag_ended)
+	get_window().files_dropped.connect(_on_files_dropped)
+	drop_label.text = DROP_HINT
 
 
 func _process(_delta: float) -> void:
@@ -53,6 +61,20 @@ func _process(_delta: float) -> void:
 	if not dragging:
 		timeline.value = player.get_playback_position()
 	time_label.text = "%s / %s" % [_format_time(timeline.value), _format_time(timeline.max_value)]
+
+
+## Plays the first dropped file that loads as a song. The whole window accepts drops.
+func _on_files_dropped(files: PackedStringArray) -> void:
+	for path in files:
+		if path.get_extension().to_lower() not in SONG_EXTENSIONS:
+			continue
+		var song := load(path) as VGMStream
+		if song:
+			player.stream = song
+			player.play()
+			drop_label.text = "Playing " + path.get_file()
+			return
+	drop_label.text = "Not a song file. " + DROP_HINT
 
 
 func _on_drag_ended(_value_changed: bool) -> void:
