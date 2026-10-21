@@ -1,7 +1,7 @@
 # Permissively licensed emulation cores
 
 The bundled libvgm (`thirdparty/libvgm`, [the fork's `godot_libvgm` branch](https://github.com/PurpBatBoi/libvgm/tree/godot_libvgm))
-contains only sound cores whose license is MIT, BSD-3-Clause or ISC. A game can ship them without releasing its
+contains only sound cores (the code that imitates a sound chip) whose license is MIT, BSD-3-Clause or ISC. A game can ship them without releasing its
 own source code; it only has to include their copyright notice and license text (for example in its
 credits or a third-party licenses file).
 
@@ -10,10 +10,9 @@ Chips with no permissive core are left out of the build. Songs that use any of t
 
 Each chip has exactly one core. Where libvgm offered several permissive ones, the fork keeps the one that
 runs fastest (MAME for the AY-3-8910, Game Boy and HuC6280). The **core name** is libvgm's name for
-that core.
+that core. A **port** (as in "C port of ...") is the original code rewritten in C to fit into libvgm.
 
-> This list covers the emulation cores only. libvgm's own framework code has no license yet, which blocks
-> distribution regardless of the cores chosen (see [Not covered here](#not-covered-here)).
+> This list only covers the chip emulators. The other components that ship in the extension, including libvgm's own code (the part that loads and plays songs), are listed under [Not covered here](#not-covered-here).
 > This document is not legal advice.
 
 ## Supported chips
@@ -25,14 +24,14 @@ that core.
 | YM2413 (OPLL) | Master System FM, MSX-MUSIC, VRC7 | `EMU2413` | MIT ([upstream](https://github.com/digital-sound-antiques/emu2413)) | `emu2413.c` |
 | YM2612 / YM3438 | Genesis / Mega Drive FM | `ymfm` | BSD-3-Clause ([upstream](https://github.com/aaronsgiles/ymfm)) | `ymfm_opn.c` (C port of ymfm's YM2612), `ymfm_fm.c` (the FM engine shared by the ymfm-based cores) |
 | YM2151 (OPM) | Arcade, X68000 | `ymfm` | BSD-3-Clause ([upstream](https://github.com/aaronsgiles/ymfm)) | `ymfm_opm.c` (C port of ymfm's YM2151), `ymfm_fm.c` |
-| YM3812 / YM3526 / Y8950 (OPL, OPL2, MSX-AUDIO) | AdLib, arcade, MSX-AUDIO | `ymfm` | BSD-3-Clause ([upstream](https://github.com/aaronsgiles/ymfm)) | `ymfm_opl.c` (C port of ymfm's YM3526, YM3812 and Y8950), `ymfm_fm.c`, `ymfm_adpcm.c` (ADPCM-B) |
+| YM3812 / YM3526 / Y8950 (OPL, OPL2, MSX-AUDIO) | AdLib, arcade, MSX-AUDIO | `ymfm` | BSD-3-Clause ([upstream](https://github.com/aaronsgiles/ymfm)) | `ymfm_opl.c` (C port of ymfm's YM3526, YM3812 and Y8950), `ymfm_fm.c`, `ymfm_adpcm.c` (sample playback, ADPCM-B) |
 | YMF262 (OPL3) | Sound Blaster 16 / Pro 2 | `ymfm` | BSD-3-Clause ([upstream](https://github.com/aaronsgiles/ymfm)) | `ymfm_opl.c` (C port of ymfm's YMF262), `ymfm_fm.c` |
-| YM2203 / YM2608 / YM2610 / YM2610B (OPN family) | PC-88/98, Neo Geo, arcade | `ymfm` | BSD-3-Clause ([upstream](https://github.com/aaronsgiles/ymfm)); YM2608 rhythm sounds: BSD-3-Clause ([Tetorica](https://github.com/kyorohiro/hello_ymfm_wasm)) | `ymfm_opn.c` (C port of ymfm's YM2203, YM2608 and YM2610), `ymfm_fm.c`, `ymfm_adpcm.c` (ADPCM-A/B), `ymfm_opn_rhythm.h`; the SSG part uses the AY-3-8910 core |
-| YMF278B (OPL4) | MSX MoonSound | `ymfm` | BSD-3-Clause ([upstream](https://github.com/aaronsgiles/ymfm)) | `ymfm_opl.c`, `ymfm_pcm.c` (C port of ymfm's wavetable part and register interface; the FM part uses the YMF262 core) |
+| YM2203 / YM2608 / YM2610 / YM2610B (OPN family) | PC-88/98, Neo Geo, arcade | `ymfm` | BSD-3-Clause ([upstream](https://github.com/aaronsgiles/ymfm)); YM2608 rhythm sounds: BSD-3-Clause ([Tetorica](https://github.com/kyorohiro/hello_ymfm_wasm)) | `ymfm_opn.c` (C port of ymfm's YM2203, YM2608 and YM2610), `ymfm_fm.c`, `ymfm_adpcm.c` (sample playback, ADPCM-A/B), `ymfm_opn_rhythm.h`; the SSG part uses the AY-3-8910 core |
+| YMF278B (OPL4) | MSX MoonSound | `ymfm` | BSD-3-Clause ([upstream](https://github.com/aaronsgiles/ymfm)) | `ymfm_opl.c`, `ymfm_pcm.c` (C port of ymfm's sampled-instrument part and how the chip is controlled; the FM part uses the YMF262 core) |
 | HuC6280 | PC Engine / TurboGrafx-16 | `MAME` | BSD-3-Clause | `c6280_mame.c` |
 | Game Boy DMG | Game Boy | `MAME` | BSD-3-Clause | `gb_mame.c` |
-| NES APU (+ FDS) | NES / Famicom, Famicom Disk System | `BeesNES` | 2A03: MIT, the APU of [BeesNES](https://github.com/L-Spiro/BeesNES) (L-Spiro's sub-cycle-accurate NES emulator) ported to C. FDS (`purps_fds`): written for this project from the [nesdev wiki](https://www.nesdev.org/wiki/FDS_audio), same license as this project (not chosen yet). | `beesnes_apu.c`, `beesnes_intf.c`, `purps_fds.c`, `nes_filter.h` (in the libvgm fork) |
-| RF5C68 / RF5C164 | Sega CD, FM Towns | `MAME` | BSD-3-Clause | `rf5c68.c` (not written for the RF5C164; untested there) |
+| NES APU (+ FDS) | NES / Famicom, Famicom Disk System | `BeesNES` | 2A03 (the NES's own sound chip): MIT, taken from [BeesNES](https://github.com/L-Spiro/BeesNES) (L-Spiro's very accurate NES emulator) and rewritten in C. FDS (`purps_fds`): written for this project from the [nesdev wiki](https://www.nesdev.org/wiki/FDS_audio), and MIT licensed like this project. | `beesnes_apu.c`, `beesnes_intf.c`, `purps_fds.c`, `nes_filter.h` (in the libvgm fork) |
+| RF5C68 / RF5C164 | Sega CD, FM Towns | `MAME` | BSD-3-Clause | `rf5c68.c` (written for the RF5C68; untested on the RF5C164) |
 | 32X PWM | Sega 32X | `ares` | ISC ([upstream](https://github.com/ares-emulator/ares)) | `ares_32xpwm.c` (C port of ares' 32X PWM) |
 | WonderSwan sound | WonderSwan, WonderSwan Color | `ares` | ISC ([upstream](https://github.com/ares-emulator/ares)) | `ares_wswan.c` (C port of ares' WonderSwan sound unit) |
 | QSound | Capcom CPS-2 | `MAME` | BSD-3-Clause | `qsound_mame.c` |
@@ -64,12 +63,12 @@ that core.
 | SNES APU (SPC700 + S-DSP) | Super Nintendo, `.spc` files | `Snaggletooth` | MIT ([upstream](https://github.com/etroimcasso/Snaggletooth)) | `snes_spc700.c`, `snes_dsp.c`, `snes_apu.c` (C port of Snaggletooth's audio unit, pinned at commit `efd5049`) |
 | VRC6 | Konami NES / Famicom cartridges, `.nsf` / `.nsfe` files only | `BeesNES` | MIT ([upstream](https://github.com/L-Spiro/BeesNES)) | `beesnes_vrc6.c` (C port of BeesNES' VRC6), `nes_expout.h`, `nes_filter.h` (in the libvgm fork) |
 | Namco 163 | Namco NES / Famicom cartridges, `.nsf` / `.nsfe` files only | `BeesNES` | MIT ([upstream](https://github.com/L-Spiro/BeesNES)) | `beesnes_n163.c` (C port of BeesNES' N163), `nes_expout.h`, `nes_filter.h` |
-| Sunsoft 5B | Sunsoft NES / Famicom cartridges (Gimmick!), `.nsf` / `.nsfe` files only | `BeesNES` | MIT ([upstream](https://github.com/L-Spiro/BeesNES)) | `beesnes_5b.c` (C port of BeesNES' 5B), `nes_expout.h`, `nes_filter.h` |
+| Sunsoft 5B | Sunsoft NES / Famicom cartridges (Gimmick!), `.nsf` / `.nsfe` files only | `BeesNES` (tones, noise), `ares` (envelope) | MIT ([upstream](https://github.com/L-Spiro/BeesNES)); the volume envelope is ISC ([upstream](https://github.com/ares-emulator/ares)) | `beesnes_5b.c` (C port of BeesNES' 5B with the volume envelope of ares' YM2149), `nes_expout.h`, `nes_filter.h` |
 | MMC5 | Nintendo NES cartridges (Castlevania III), `.nsf` / `.nsfe` files only | `ares` | ISC ([upstream](https://github.com/ares-emulator/ares)) | `ares_mmc5.c` (C port of the sound unit of ares' MMC5 board), `nes_expout.h`, `nes_filter.h` |
 
 ## Unsupported chips
 
-These chips only have GPL, LGPL or unlicensed cores, so the fork removes them. Loading a song that uses
+The only emulators available for these chips have restrictive licenses (GPL, LGPL) or no license, so the fork removes them. Loading a song that uses
 one of them fails with an error naming the chip.
 
 | Chip | Typical use | Removed cores and licenses |
@@ -80,18 +79,19 @@ one of them fails with an error naming the chip.
 
 ## Not covered here
 
-The following components also ship inside the extension and require license clearance before release:
+The following components also ship inside the extension:
 
-- **libvgm's framework** (`player/`, `emu/*.c`, the `*intf.c` chip interfaces, `utils/`): no license
-  file or headers. A license or permission from libvgm's author is required before any distribution.
+- **libvgm's own code** (`player/`, `emu/*.c`, the `*intf.c` chip interfaces, `utils/`): MIT.
 - **zlib** (`thirdparty/zlib`): zlib license, permissive.
 - **Godot / godot-cpp**: MIT.
 
 ## Shipping
 
-The copyright notice and license text of each shipped core must be included. MAME cores carry their copyright
-holders at the top of each source file, and `ymfm_fm.c`, `ymfm_adpcm.c`, `ymfm_pcm.c`, `ymfm_opn.c`, `ymfm_opm.c` and `ymfm_opl.c` (and their headers) carry ymfm's BSD-3-Clause notice.
-`ymfm_opn_rhythm.h` carries the BSD-3-Clause notice for the YM2608 rhythm sounds; it must be included too.
-`ares_32xpwm.c`, `ares_wswan.c`, `ares_mmc5.c` and `player/nsf_cpu6502.c` (the 6502 of the NSF player, a C port of ares' MOS 6502 core) carry the ISC notice of ares; it must be included too.
+The copyright notice and license text of each shipped core must be included. Where to find them:
+
+- **MAME cores**: the copyright holders are listed at the top of each source file.
+- **ymfm cores**: `ymfm_fm.c`, `ymfm_adpcm.c`, `ymfm_pcm.c`, `ymfm_opn.c`, `ymfm_opm.c` and `ymfm_opl.c` (and their headers) carry ymfm's BSD-3-Clause notice.
+- **YM2608 drum sounds**: `ymfm_opn_rhythm.h` carries their BSD-3-Clause notice.
+- **ares-based code**: `ares_32xpwm.c`, `ares_wswan.c`, `ares_mmc5.c`, `player/nsf_cpu6502.c` (the NSF player's NES CPU, a C port of ares' MOS 6502 core) and `beesnes_5b.c` carry the ISC notice of ares. `beesnes_5b.c` also has the MIT notice of BeesNES, and takes its volume envelope from ares' YM2149.
 
 [`THIRD_PARTY_LICENSES.txt`](THIRD_PARTY_LICENSES.txt) collects all of these notices and license texts (cores, blep_filter, zlib, godot-cpp, this extension) in one file that can be shipped with a game. It must be updated when a core is added or removed.

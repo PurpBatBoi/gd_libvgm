@@ -2,11 +2,11 @@
 
 Native playback of sound chip music in Godot 4.5+, powered by [libvgm](https://github.com/ValleyBell/libvgm).
 
-Songs are not converted to audio files: libvgm emulates the original sound chips (SN76489, AY-3-8910, HuC6280, NES APU, Game Boy, the FM chips YM2612, YM2151, YM2413, the OPL and OPN families, and many more) in real time inside the engine. Files stay tiny, and you can change tempo, mute channels and toggle chip filters while a song plays.
+Songs are not converted to audio files: libvgm imitates the original sound chips (for example the SN76489, AY-3-8910, HuC6280, NES, Game Boy, and Yamaha's FM chips such as the YM2612 and YM2151) while the game runs. Files stay tiny, and you can change tempo, mute channels and switch chip filters on and off while a song plays.
 
 **Formats:** VGM / VGZ, S98, DRO (DOSBox OPL), GYM, SPC (Super Nintendo), NSF / NSFe (NES, with the expansion chips).
 
-**Chips:** only chips with a permissively licensed (MIT / BSD) core. See [Supported chips](#supported-chips).
+**Chips:** only chips whose emulation code has a permissive license (MIT / BSD), so you can ship them in a game. See [Supported chips](#supported-chips).
 
 ---
 
@@ -27,7 +27,7 @@ For music that keeps playing across scenes, put the player in an autoload scene.
 
 ## Supported chips
 
-Only chips with a permissively licensed (MIT / BSD-3-Clause / ISC) emulation core are built in. A song that uses any other chip fails to load, with an error naming the chip.
+Only chips whose emulation code (the "core") has a permissive license (MIT / BSD-3-Clause / ISC) are built in. A song that uses any other chip fails to load, with an error naming the chip.
 
 | Chip | Used in | Cores |
 |---|---|---|
@@ -43,7 +43,7 @@ Only chips with a permissively licensed (MIT / BSD-3-Clause / ISC) emulation cor
 | HuC6280 | PC Engine / TurboGrafx-16 | MAME |
 | Game Boy DMG | Game Boy | MAME |
 | NES APU + FDS | NES / Famicom, Famicom Disk System | BeesNES |
-| VRC6, Namco 163, Sunsoft 5B, MMC5 | NES / Famicom cartridges (NSF / NSFe files only) | BeesNES (VRC6, N163, 5B), ares (MMC5) |
+| VRC6, Namco 163, Sunsoft 5B, MMC5 | NES / Famicom cartridges (NSF / NSFe files only) | BeesNES (VRC6, N163, 5B), ares (MMC5, 5B envelope) |
 | RF5C68 / RF5C164 | Sega CD, FM Towns | MAME |
 | 32X PWM | Sega 32X | ares |
 | WonderSwan sound | WonderSwan, WonderSwan Color | ares |
@@ -70,14 +70,14 @@ Only chips with a permissively licensed (MIT / BSD-3-Clause / ISC) emulation cor
 | BSMT2000 | Data East / pinball | MAME |
 | Mikey | Atari Lynx | laoo |
 
-**NES expansion chips:** a VGM / VGZ file can drive the 2A03 (with the FDS) and the VRC7 only. The other expansion chips (VRC6, Namco 163, Sunsoft 5B, MMC5) play from an NSF / NSFe file, which runs the game's own sound driver on an emulated 6502.
+**NES expansion chips** (extra sound chips inside some cartridges): a VGM / VGZ file can use the NES's own sound chip (2A03, with the FDS) and the VRC7 only. The other expansion chips (VRC6, Namco 163, Sunsoft 5B, MMC5) play from an NSF / NSFe file, which contains the game's own music program and runs it on an emulated NES CPU.
 
-**Not supported for now:** Virtual Boy VSU, MSM5232, ES5505 / ES5506. Their only cores are GPL, LGPL or unlicensed.
+**Not supported for now:** Virtual Boy VSU, MSM5232, ES5505 / ES5506. The only emulators available for them have restrictive licenses (GPL, LGPL) or no license, so they are left out.
 
-The YM2608 plays its rhythm sounds from a free replacement for Yamaha's rhythm ROM, so PC-98 drums sound different from the real chip.
+The YM2608's drum sounds are stored in a ROM chip that belongs to Yamaha. A free replacement is built in, so PC-98 drums sound different from the real chip.
 
-The YMF278B plays the FM part without any extra file. Its wavetable instruments need the YRW801 wave ROM, which is Yamaha's
-and can't be shipped: without it the instruments are silent (see [YMF278B wave ROM](#ymf278b-wave-rom)).
+The YMF278B plays its FM instruments without any extra file. Its sampled instruments need the YRW801 wave ROM (a file of instrument sounds), which is Yamaha's
+and can't be shipped: without it those instruments are silent (see [YMF278B wave ROM](#ymf278b-wave-rom)).
 
 Licenses and source files per core: [PERMISSIVE_CORES.md](PERMISSIVE_CORES.md).
 
@@ -89,11 +89,11 @@ All settings live on the song (a `VGMStream` resource) and apply immediately, ev
 
 | Setting | What it does |
 |---|---|
-| Speed | Tempo multiplier. Pitch stays the same (use the player's Pitch Scale for pitch). |
+| Speed | Tempo multiplier. Pitch stays the same (use the player's Pitch Scale to change pitch). For SPC and NSF files, the game's music program runs faster, but the chips themselves keep their normal speed. |
 | Loop Count | How many times the loop plays before the song ends. `0` = loop forever. |
 | Fade Time | Fade-out length after the last loop. |
 | Ignore Song Volume | Ignore the volume adjustment stored in the file. |
-| Resampler Mode | Quality of the conversion from each chip's native rate to the output rate. |
+| Resampler Mode | Sound quality when each chip's audio is converted to the output sample rate. |
 | Track | The song to play, for an NSF / NSFe file that holds several. Changing it restarts the players of the song. |
 
 ### Per chip
@@ -101,8 +101,8 @@ All settings live on the song (a `VGMStream` resource) and apply immediately, ev
 Each chip used by the song gets its own group in the inspector:
 
 - **Muted Channels**: one checkbox per channel, with the chip's channel names.
-- **Options**: the chip's emulation flags, including its filters (NES nonlinear mixer, ...).
-- **Panning**: a slider per channel, shown when the chip's emulation supports panning.
+- **Options**: on/off switches for the chip's emulation, including the filters of the real hardware (for example the NES mixer).
+- **Panning**: a left / right slider per channel, shown when the chip supports it.
 
 ### Per-player parameters
 
@@ -118,7 +118,7 @@ Songs follow these until you change that setting on the song itself. Reverting i
 
 ### YM2608 rhythm ROM
 
-The YM2608 (PC-98) plays its drums from an 8 KB rhythm ROM. The extension has a free replacement built in
+The YM2608 (PC-98) plays its drums from an 8 KB file of drum sounds (the rhythm ROM). The extension has a free replacement built in
 ([Tetorica OPNA rhythm sounds](https://github.com/kyorohiro/hello_ymfm_wasm/tree/main/assets/opna-rhythm), BSD-3-Clause),
 which sounds different from the real chip. To use another ROM, for example one you made with Tetorica's
 [editor page](https://kyorohiro.github.io/hello_ymfm_wasm/demos/opna-rhythm-compare.html):
@@ -133,8 +133,8 @@ you are allowed to distribute; Yamaha's own ROM is copyrighted.
 
 ### YMF278B wave ROM
 
-The YMF278B (MoonSound) plays its instruments from the YRW801 wave ROM, a 2 MB file (2097152 bytes) that you must supply
-yourself. There is no built-in replacement: without it the wavetable part is silent and only the FM part plays. Songs that
+The YMF278B (MoonSound) plays its sampled instruments from the YRW801 wave ROM, a 2 MB file (2097152 bytes) that you must supply
+yourself. There is no built-in replacement: without it the sampled instruments are silent and only the FM instruments play. Songs that
 carry their own samples in the file play without it.
 
 1. Put the 2 MB file in your project folder.
@@ -148,7 +148,7 @@ responsibility.
 
 ### Filtering
 
-The filters that real hardware had are emulated by libvgm and exposed as chip **Options**. For general low-pass / high-pass / EQ, use Godot's audio bus effects (`AudioEffectLowPassFilter`, `AudioEffectEQ`, ...).
+The filters that real hardware had are imitated by libvgm and shown as chip **Options**. For general sound shaping, such as cutting high or low tones (low-pass / high-pass) or EQ, use Godot's audio bus effects (`AudioEffectLowPassFilter`, `AudioEffectEQ`, ...).
 
 ### Saving settings
 
@@ -175,7 +175,7 @@ if song.has_channel_panning(0):
     song.set_channel_pan(0, 0, -1.0) # Channel 1 hard left
 ```
 
-An NSF / NSFe file holds a number of songs (tracks). Speed has no effect on them, and a track without a length in the file plays until you stop it:
+An NSF / NSFe file can hold several songs, called tracks. Speed changes a track's tempo just as it does for other songs, and the pitch stays the same. The exception is the NES's recorded samples (DPCM, often used for drums), which always play at normal speed. A track with no length in the file plays until you stop it:
 
 ```gdscript
 var nsf: VGMStream = load("res://music/game.nsf")
@@ -192,7 +192,7 @@ print(song.get_device_clock(0))                     # Chip clock in Hz
 $AudioStreamPlayer.seek(song.get_loop_start())      # Jump to the loop
 ```
 
-Loops and fade-out are signals of the playback. `finished` marks the end of the song:
+The playback reports loops and the fade-out with signals. `finished` marks the end of the song:
 
 ```gdscript
 $AudioStreamPlayer.play()
@@ -201,9 +201,9 @@ playback.looped.connect(func(loop): print("loop ", loop))   # 1 = first repeat
 playback.fade_started.connect(func(): print("fading out"))
 ```
 
-Signals arrive when audio is mixed, ahead of what you hear by about `AudioServer.get_output_latency()`.
+Signals fire a little before you hear the matching sound, by about `AudioServer.get_output_latency()`.
 
-`playback.get_cpu_usage()` returns the share of real time the audio thread spends emulating the song (`0.1` = 10%), and `playback.get_memory_usage()` the song's memory in bytes (Linux/glibc only, `0` elsewhere and in the editor).
+`playback.get_cpu_usage()` returns how much of the audio thread's time the song takes (`0.1` = 10%), and `playback.get_memory_usage()` the song's memory use in bytes (Linux/glibc only, `0` elsewhere and in the editor).
 
 `test_project/demo.tscn` shows both calls. Everything else in it is plain GDScript in `demo.gd`, specific to the demo and not part of the extension: the process and Godot RAM/CPU readouts (Linux only), the seekable timeline, and drag and drop. Assign a song to its `AudioStreamPlayer` and run the scene, or drop a song file onto the running window; the demo loads it with `load()` and plays it.
 
@@ -219,8 +219,8 @@ The full API is on the `VGMStream` page of Godot's built-in help.
 
 ## Notes
 
-- Each playing song runs its chip emulators continuously. The cores are cheap.
-- Changing the resampler mode restarts that song's emulation and continues from the same position.
+- Each playing song imitates its chips the whole time it plays, but this is light on the CPU.
+- Changing the resampler mode restarts that song's emulation, but playback continues from the same position.
 - Songs without a loop point end on their own and emit `finished`. An NSF track that has no length in its file (most have none) never ends: it plays until you stop it, like a looping background track.
 
 ---
@@ -251,7 +251,7 @@ The library is built into `bin/<platform>/` and installed into `test_project/add
 | Path | Contents |
 |---|---|
 | `src/` | The extension: `VGMStream` (resource + settings), `VGMStreamPlayback` (rendering), file loader, project settings |
-| `thirdparty/libvgm/` | libvgm submodule: [a fork](https://github.com/PurpBatBoi/libvgm/tree/godot_libvgm) of upstream libvgm with only permissively licensed cores. It keeps one core per chip, adds the `BeesNES` NES core (the APU of BeesNES, and its VRC6, N163 and 5B; `emu/cores/beesnes_*`, `emu/cores/purps_fds.*`, `emu/cores/nes_filter.h`, `emu/cores/nes_expout.h`), the `ares` MMC5 core, the NSF player (`player/nsfplayer.*`, `player/nsf_cpu6502.*`) and a band-limited synthesis filter (`libs/blep_filter`) |
+| `thirdparty/libvgm/` | libvgm submodule: [a modified copy](https://github.com/PurpBatBoi/libvgm/tree/godot_libvgm) of libvgm with only permissively licensed cores, one per chip. It adds the `BeesNES` NES core (the main NES sound chip plus VRC6, N163 and 5B; `emu/cores/beesnes_*`, `emu/cores/purps_fds.*`, `emu/cores/nes_filter.h`, `emu/cores/nes_expout.h`), the `ares` MMC5 core, the NSF player (`player/nsfplayer.*`, `player/nsf_cpu6502.*`) and a filter that avoids harsh digital noise (`libs/blep_filter`) |
 | `thirdparty/zlib/` | zlib submodule, for compressed `.vgz` files |
 | `tools/libvgm_build.py` | Compiles libvgm and zlib into the extension |
 | `doc_classes/` | Class reference shown in Godot's help |
@@ -266,7 +266,8 @@ So far the extension has only been built and tested on Linux x86_64; other platf
 ## Credits
 
 - [libvgm](https://github.com/ValleyBell/libvgm) by Valley Bell and the authors of its sound cores
-- [BeesNES](https://github.com/L-Spiro/BeesNES) by L-Spiro, a sub-cycle-accurate NES emulator (MIT): the `BeesNES` NES core is its APU, and the VRC6, N163 and 5B cores are its expansion chips, ported to C.
-- [ares](https://github.com/ares-emulator/ares), a multi-system emulator (ISC): the `ares` 32X PWM, WonderSwan sound and MMC5 cores are C ports of its sound units, and the NSF player's 6502 is a C port of its MOS 6502 core.
+- [BeesNES](https://github.com/L-Spiro/BeesNES) by L-Spiro, a very accurate NES emulator (MIT): the `BeesNES` NES core is its main sound chip, and the VRC6, N163 and 5B cores are its expansion chips, rewritten in C.
+- [ares](https://github.com/ares-emulator/ares), a multi-system emulator (ISC): the `ares` 32X PWM, WonderSwan sound and MMC5 cores are its sound code rewritten in C, the 5B core's volume envelope comes from its YM2149, and the NSF player's NES CPU (6502) is its MOS 6502 core rewritten in C.
+- [Snaggletooth](https://github.com/etroimcasso/Snaggletooth) by Eric Tomasso (MIT): the `Snaggletooth` SNES core, which plays `.spc` files, is its audio unit (SPC700 and S-DSP) rewritten in C.
 - [zlib](https://zlib.net/)
 - Build setup based on the [Godot++](https://github.com/nikoladevelops/godot-plus-plus) GDExtension template

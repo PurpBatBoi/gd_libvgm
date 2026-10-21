@@ -54,6 +54,7 @@ MIT license:
   Atari Lynx Mikey .......... laoo
   SNES APU (from Snaggletooth)
                               Eric Tomasso; port by Purpbatboi
+  libvgm player and utils ... Valley Bell
   godot-cpp ................. Godot Engine contributors
   gd_libvgm ................. PurpBatBoi
 
@@ -61,6 +62,7 @@ ISC license:
 
   Sega 32X PWM, WonderSwan .. ares team, Near et al
   NES MMC5, NSF 6502 CPU .... ares team, Near et al
+  NES Sunsoft 5B envelope ... ares team, Near et al
 
 zlib license:
 
@@ -109,6 +111,7 @@ Copyright (c) 2020 Shawn (L. Spiro) Wilcoxen
 Copyright (c) 2026 Eric Tomasso
 Copyright (c) 2026 Purpbatboi / PurpBatBoi
 Copyright (c) laoo
+Copyright (c) Valley Bell
 Copyright (c) 2017-present Godot Engine contributors
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
