@@ -174,4 +174,4 @@ nbdist/
 # Local song rips (game music) for testing: never commit them.
 .MUSIC/
 
-..workflows/
+.workflows/
