@@ -16,7 +16,9 @@
 
 using namespace godot;
 
-// A song in any format libvgm plays (VGM/VGZ, S98, DRO, GYM, SPC), plus the playback settings that every
+class PlayerA;
+
+// A song in any format libvgm plays (VGM/VGZ, S98, DRO, GYM, SPC, NSF/NSFe), plus the playback settings that every
 // VGMStreamPlayback of it applies live: speed, looping, volume, resampler, and per sound-chip settings.
 // Per-chip settings are also exposed to the inspector as dynamic "chip_<index>_*" properties.
 // Song info (format, loop points, chip clocks) is read-only. Per-player speed and muted channels are Godot
@@ -64,6 +66,8 @@ public:
 		std::optional<double> fade_time;
 		std::optional<bool> ignore_song_volume;
 		std::optional<ResamplerMode> resampler_mode;
+		std::optional<int> track; // Song of an NSF (from 0); empty = the file's own first song.
+		int default_track = 0; // The file's own first song.
 		std::vector<DeviceSettings> devices; // Parallel to the device list.
 	};
 
@@ -74,6 +78,7 @@ public:
 		double fade_time = 0.0;
 		bool ignore_song_volume = false;
 		ResamplerMode resampler_mode = RESAMPLER_HIGH_QUALITY;
+		int track = 0; // Song of an NSF (from 0).
 		std::vector<DeviceSettings> devices;
 	};
 
@@ -90,6 +95,11 @@ public:
 	bool get_ignore_song_volume() const;
 	void set_resampler_mode(ResamplerMode p_mode);
 	ResamplerMode get_resampler_mode() const;
+	// An NSF holds a number of songs, called tracks here; every other file has one. Tracks are numbered from 0.
+	// Setting the track updates the length and the tags and restarts the players that are playing the song.
+	int get_track_count() const;
+	void set_track(int p_track);
+	int get_track() const;
 
 	String get_format() const;
 	String get_format_version() const;
@@ -138,6 +148,7 @@ protected:
 	bool _get(const StringName &p_name, Variant &r_ret) const;
 	bool _property_can_revert(const StringName &p_name) const;
 	bool _property_get_revert(const StringName &p_name, Variant &r_property) const;
+	void _validate_property(PropertyInfo &p_property) const;
 
 private:
 	// Song info, replaced by set_data(). Main thread only.
@@ -150,6 +161,7 @@ private:
 	String format_version;
 	double loop_start = 0.0; // File time, seconds; 0 without a loop.
 	double loop_length = 0.0;
+	int track_count = 0;
 
 	// Read by playbacks on the audio thread; guarded by settings_mutex. Written on the main thread only,
 	// so main-thread reads need no lock.
@@ -158,6 +170,10 @@ private:
 	std::atomic<uint64_t> settings_version{ 0 };
 
 	bool is_valid_device(int p_device) const;
+	// Reads what depends on the track (tags, length, loop) from a song that has the track selected.
+	void read_track_info(PlayerA &p_player);
+	// Loads the song again to read that information for the track.
+	void refresh_track_info(int p_track);
 	// Applies p_modify to the settings under the lock, then bumps the version (picked up by playbacks)
 	// and emits `changed`.
 	template <typename F>

@@ -47,6 +47,8 @@ MIT license:
 
   YM2413 / VRC7 (emu2413) ... Mitsutaka Okazaki
   NES APU (from BeesNES) .... Shawn (L. Spiro) Wilcoxen; port by Purpbatboi
+  NES VRC6, Namco 163, Sunsoft 5B (from BeesNES)
+                              Shawn (L. Spiro) Wilcoxen; port by Purpbatboi
   NES filters, FDS .......... Purpbatboi
   Resampler (blep_filter) ... Purpbatboi
   Atari Lynx Mikey .......... laoo
@@ -58,6 +60,7 @@ MIT license:
 ISC license:
 
   Sega 32X PWM, WonderSwan .. ares team, Near et al
+  NES MMC5, NSF 6502 CPU .... ares team, Near et al
 
 zlib license:
 

@@ -5,7 +5,7 @@
 #include "vgm_stream.hpp"
 
 PackedStringArray ResourceFormatLoaderVGM::_get_recognized_extensions() const {
-	return PackedStringArray({ "vgm", "vgz", "s98", "dro", "gym", "spc" });
+	return PackedStringArray({ "vgm", "vgz", "s98", "dro", "gym", "spc", "nsf", "nsfe" });
 }
 
 bool ResourceFormatLoaderVGM::_handles_type(const StringName &p_type) const {

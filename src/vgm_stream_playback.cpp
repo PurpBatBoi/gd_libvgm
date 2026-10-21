@@ -10,6 +10,7 @@
 #include <godot_cpp/core/class_db.hpp>
 #include <godot_cpp/variant/callable_method_pointer.hpp>
 
+#include "player/nsfplayer.hpp"
 #include "player/vgmplayer.hpp"
 #include "vgm_project_settings.hpp"
 #include "vgm_util.hpp"
@@ -69,6 +70,9 @@ VGMStream::PlaybackSettings VGMStreamPlayback::merged_settings() const {
 void VGMStreamPlayback::apply_settings(const VGMStream::PlaybackSettings &p_settings) {
 	PlayerA &player = song.player;
 	PlayerBase *engine = player.GetPlayer();
+
+	// Only effective before Start(): sync_settings() restarts the song when the track changes.
+	VGMSong::select_song(engine, p_settings.track);
 
 	PlayerA::Config config = player.GetConfiguration();
 	config.pbSpeed = p_settings.speed;
@@ -134,14 +138,17 @@ void VGMStreamPlayback::sync_settings() {
 	const uint64_t synced_parameter_version = parameter_version;
 	const VGMStream::PlaybackSettings settings = merged_settings();
 
-	// The resampler mode is only used when devices are created, i.e. on start.
-	const bool needs_restart = settings.resampler_mode != applied.resampler_mode || settings.devices.size() != applied.devices.size();
+	// The resampler mode is only used when devices are created, i.e. on start. Another track is another song.
+	const bool track_changed = settings.track != applied.track;
+	const bool needs_restart = track_changed || settings.resampler_mode != applied.resampler_mode || settings.devices.size() != applied.devices.size();
 
 	if (needs_restart && active) {
 		const UINT32 position = song.player.GetCurPos(PLAYPOS_SAMPLE);
 		applied = settings;
 		if (restart()) {
-			song.player.Seek(PLAYPOS_SAMPLE, position);
+			if (!track_changed) {
+				song.player.Seek(PLAYPOS_SAMPLE, position);
+			}
 		} else {
 			active = false;
 		}
@@ -285,6 +292,18 @@ int32_t VGMStreamPlayback::mix_song(AudioFrame *p_dst, int32_t p_frame_count) {
 // and leaves the rest silent, so a whole-song mix emulates ~2.5 s of audio whatever the song's length. A forward
 // seek only parses commands, so it is cheap.
 int32_t VGMStreamPlayback::mix_preview(AudioFrame *p_dst, int32_t p_frame_count) {
+	if (song.player.GetPlayer()->GetPlayerType() == FCC_NSF) {
+		// An NSF has no commands to skip: a seek emulates the machine from the start, so the sampled windows
+		// would emulate the song many times over. Play the first seconds instead.
+		const uint64_t head_frames = (uint64_t)(PREVIEW_SEGMENTS * PREVIEW_WINDOW_SECONDS * sample_rate);
+		const int32_t real = preview_position < head_frames ? render_frames(p_dst, (int32_t)MIN((uint64_t)p_frame_count, head_frames - preview_position)) : 0;
+		for (int32_t i = real; i < p_frame_count; i++) {
+			p_dst[i] = AudioFrame{ 0.0f, 0.0f };
+		}
+		preview_position += p_frame_count;
+		pending_loop = 0; // Previews send no signals.
+		return p_frame_count;
+	}
 	const uint64_t segment_frames = MAX((uint64_t)(stream->get_length() * sample_rate / PREVIEW_SEGMENTS), (uint64_t)1);
 	const uint64_t window_frames = (uint64_t)(PREVIEW_WINDOW_SECONDS * sample_rate);
 	int32_t done = 0;

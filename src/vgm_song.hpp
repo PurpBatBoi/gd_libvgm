@@ -27,6 +27,13 @@ public:
 	// Releases the file and its devices. Safe to call when nothing is loaded.
 	void unload();
 
+	// A file holds one song, except an NSF, which holds a number of them. Songs are numbered from 0.
+	static int get_song_count(PlayerBase *p_engine);
+	static int get_current_song(PlayerBase *p_engine);
+	// Chooses the song of the loaded file. Before Start() it only sets what Start() plays; the engine
+	// picks the file's own first song again whenever the file is loaded.
+	static bool select_song(PlayerBase *p_engine, int p_song);
+
 	PlayerA player;
 
 private:

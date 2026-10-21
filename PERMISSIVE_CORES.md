@@ -62,6 +62,10 @@ that core.
 | BSMT2000 | Data East / pinball | `MAME` | BSD-3-Clause | `bsmt2000.c` |
 | Mikey | Atari Lynx | `laoo` | MIT | `mikey.c` |
 | SNES APU (SPC700 + S-DSP) | Super Nintendo, `.spc` files | `Snaggletooth` | MIT ([upstream](https://github.com/etroimcasso/Snaggletooth)) | `snes_spc700.c`, `snes_dsp.c`, `snes_apu.c` (C port of Snaggletooth's audio unit, pinned at commit `efd5049`) |
+| VRC6 | Konami NES / Famicom cartridges, `.nsf` / `.nsfe` files only | `BeesNES` | MIT ([upstream](https://github.com/L-Spiro/BeesNES)) | `beesnes_vrc6.c` (C port of BeesNES' VRC6), `nes_expout.h`, `nes_filter.h` (in the libvgm fork) |
+| Namco 163 | Namco NES / Famicom cartridges, `.nsf` / `.nsfe` files only | `BeesNES` | MIT ([upstream](https://github.com/L-Spiro/BeesNES)) | `beesnes_n163.c` (C port of BeesNES' N163), `nes_expout.h`, `nes_filter.h` |
+| Sunsoft 5B | Sunsoft NES / Famicom cartridges (Gimmick!), `.nsf` / `.nsfe` files only | `BeesNES` | MIT ([upstream](https://github.com/L-Spiro/BeesNES)) | `beesnes_5b.c` (C port of BeesNES' 5B), `nes_expout.h`, `nes_filter.h` |
+| MMC5 | Nintendo NES cartridges (Castlevania III), `.nsf` / `.nsfe` files only | `ares` | ISC ([upstream](https://github.com/ares-emulator/ares)) | `ares_mmc5.c` (C port of the sound unit of ares' MMC5 board), `nes_expout.h`, `nes_filter.h` |
 
 ## Unsupported chips
 
@@ -88,6 +92,6 @@ The following components also ship inside the extension and require license clea
 The copyright notice and license text of each shipped core must be included. MAME cores carry their copyright
 holders at the top of each source file, and `ymfm_fm.c`, `ymfm_adpcm.c`, `ymfm_pcm.c`, `ymfm_opn.c`, `ymfm_opm.c` and `ymfm_opl.c` (and their headers) carry ymfm's BSD-3-Clause notice.
 `ymfm_opn_rhythm.h` carries the BSD-3-Clause notice for the YM2608 rhythm sounds; it must be included too.
-`ares_32xpwm.c` and `ares_wswan.c` carry the ISC notice of ares; it must be included too.
+`ares_32xpwm.c`, `ares_wswan.c`, `ares_mmc5.c` and `player/nsf_cpu6502.c` (the 6502 of the NSF player, a C port of ares' MOS 6502 core) carry the ISC notice of ares; it must be included too.
 
 [`THIRD_PARTY_LICENSES.txt`](THIRD_PARTY_LICENSES.txt) collects all of these notices and license texts (cores, blep_filter, zlib, godot-cpp, this extension) in one file that can be shipped with a game. It must be updated when a core is added or removed.

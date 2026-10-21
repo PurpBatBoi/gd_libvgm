@@ -4,7 +4,7 @@ Native playback of sound chip music in Godot 4.5+, powered by [libvgm](https://g
 
 Songs are not converted to audio files: libvgm emulates the original sound chips (SN76489, AY-3-8910, HuC6280, NES APU, Game Boy, the FM chips YM2612, YM2151, YM2413, the OPL and OPN families, and many more) in real time inside the engine. Files stay tiny, and you can change tempo, mute channels and toggle chip filters while a song plays.
 
-**Formats:** VGM / VGZ, S98, DRO (DOSBox OPL), GYM, SPC (Super Nintendo).
+**Formats:** VGM / VGZ, S98, DRO (DOSBox OPL), GYM, SPC (Super Nintendo), NSF / NSFe (NES, with the expansion chips).
 
 **Chips:** only chips with a permissively licensed (MIT / BSD) core. See [Supported chips](#supported-chips).
 
@@ -17,7 +17,7 @@ You get it from a release zip (see [Releasing](#releasing)) or by [building](#bu
 
 ## Quick start (no code)
 
-1. Put a `.vgz` / `.vgm` / `.s98` / `.dro` / `.gym` / `.spc` file in your project.
+1. Put a `.vgz` / `.vgm` / `.s98` / `.dro` / `.gym` / `.spc` / `.nsf` / `.nsfe` file in your project.
 2. Add an `AudioStreamPlayer` (or the 2D / 3D variant).
 3. Drag the song from the FileSystem dock onto its **Stream** property.
 4. Tick **Autoplay** (or **Playing** to hear it in the editor).
@@ -43,6 +43,7 @@ Only chips with a permissively licensed (MIT / BSD-3-Clause / ISC) emulation cor
 | HuC6280 | PC Engine / TurboGrafx-16 | MAME |
 | Game Boy DMG | Game Boy | MAME |
 | NES APU + FDS | NES / Famicom, Famicom Disk System | BeesNES |
+| VRC6, Namco 163, Sunsoft 5B, MMC5 | NES / Famicom cartridges (NSF / NSFe files only) | BeesNES (VRC6, N163, 5B), ares (MMC5) |
 | RF5C68 / RF5C164 | Sega CD, FM Towns | MAME |
 | 32X PWM | Sega 32X | ares |
 | WonderSwan sound | WonderSwan, WonderSwan Color | ares |
@@ -69,6 +70,8 @@ Only chips with a permissively licensed (MIT / BSD-3-Clause / ISC) emulation cor
 | BSMT2000 | Data East / pinball | MAME |
 | Mikey | Atari Lynx | laoo |
 
+**NES expansion chips:** a VGM / VGZ file can drive the 2A03 (with the FDS) and the VRC7 only. The other expansion chips (VRC6, Namco 163, Sunsoft 5B, MMC5) play from an NSF / NSFe file, which runs the game's own sound driver on an emulated 6502.
+
 **Not supported for now:** Virtual Boy VSU, MSM5232, ES5505 / ES5506. Their only cores are GPL, LGPL or unlicensed.
 
 The YM2608 plays its rhythm sounds from a free replacement for Yamaha's rhythm ROM, so PC-98 drums sound different from the real chip.
@@ -91,6 +94,7 @@ All settings live on the song (a `VGMStream` resource) and apply immediately, ev
 | Fade Time | Fade-out length after the last loop. |
 | Ignore Song Volume | Ignore the volume adjustment stored in the file. |
 | Resampler Mode | Quality of the conversion from each chip's native rate to the output rate. |
+| Track | The song to play, for an NSF / NSFe file that holds several. Changing it restarts the players of the song. |
 
 ### Per chip
 
@@ -171,6 +175,14 @@ if song.has_channel_panning(0):
     song.set_channel_pan(0, 0, -1.0) # Channel 1 hard left
 ```
 
+An NSF / NSFe file holds a number of songs (tracks). Speed has no effect on them, and a track without a length in the file plays until you stop it:
+
+```gdscript
+var nsf: VGMStream = load("res://music/game.nsf")
+print(nsf.get_track_count())         # Tracks in the file
+nsf.track = 4                        # Fifth track (from 0); restarts it if it is playing
+```
+
 Song info (read-only):
 
 ```gdscript
@@ -209,7 +221,7 @@ The full API is on the `VGMStream` page of Godot's built-in help.
 
 - Each playing song runs its chip emulators continuously. The cores are cheap.
 - Changing the resampler mode restarts that song's emulation and continues from the same position.
-- Songs without a loop point end on their own and emit `finished`.
+- Songs without a loop point end on their own and emit `finished`. An NSF track that has no length in its file (most have none) never ends: it plays until you stop it, like a looping background track.
 
 ---
 
@@ -239,7 +251,7 @@ The library is built into `bin/<platform>/` and installed into `test_project/add
 | Path | Contents |
 |---|---|
 | `src/` | The extension: `VGMStream` (resource + settings), `VGMStreamPlayback` (rendering), file loader, project settings |
-| `thirdparty/libvgm/` | libvgm submodule: [a fork](https://github.com/PurpBatBoi/libvgm/tree/godot_libvgm) of upstream libvgm with only permissively licensed cores. It keeps one core per chip, adds the `BeesNES` NES core (the APU of BeesNES; `emu/cores/beesnes_*`, `emu/cores/purps_fds.*`, `emu/cores/nes_filter.h`) and a band-limited synthesis filter (`libs/blep_filter`) |
+| `thirdparty/libvgm/` | libvgm submodule: [a fork](https://github.com/PurpBatBoi/libvgm/tree/godot_libvgm) of upstream libvgm with only permissively licensed cores. It keeps one core per chip, adds the `BeesNES` NES core (the APU of BeesNES, and its VRC6, N163 and 5B; `emu/cores/beesnes_*`, `emu/cores/purps_fds.*`, `emu/cores/nes_filter.h`, `emu/cores/nes_expout.h`), the `ares` MMC5 core, the NSF player (`player/nsfplayer.*`, `player/nsf_cpu6502.*`) and a band-limited synthesis filter (`libs/blep_filter`) |
 | `thirdparty/zlib/` | zlib submodule, for compressed `.vgz` files |
 | `tools/libvgm_build.py` | Compiles libvgm and zlib into the extension |
 | `doc_classes/` | Class reference shown in Godot's help |
@@ -254,7 +266,7 @@ So far the extension has only been built and tested on Linux x86_64; other platf
 ## Credits
 
 - [libvgm](https://github.com/ValleyBell/libvgm) by Valley Bell and the authors of its sound cores
-- [BeesNES](https://github.com/L-Spiro/BeesNES) by L-Spiro, a sub-cycle-accurate NES emulator (MIT): the `BeesNES` NES core is its APU, ported to C.
-- [ares](https://github.com/ares-emulator/ares), a multi-system emulator (ISC): the `ares` 32X PWM and WonderSwan sound cores are C ports of its sound units.
+- [BeesNES](https://github.com/L-Spiro/BeesNES) by L-Spiro, a sub-cycle-accurate NES emulator (MIT): the `BeesNES` NES core is its APU, and the VRC6, N163 and 5B cores are its expansion chips, ported to C.
+- [ares](https://github.com/ares-emulator/ares), a multi-system emulator (ISC): the `ares` 32X PWM, WonderSwan sound and MMC5 cores are C ports of its sound units, and the NSF player's 6502 is a C port of its MOS 6502 core.
 - [zlib](https://zlib.net/)
 - Build setup based on the [Godot++](https://github.com/nikoladevelops/godot-plus-plus) GDExtension template

@@ -4,6 +4,7 @@
 
 #include "player/droplayer.hpp"
 #include "player/gymplayer.hpp"
+#include "player/nsfplayer.hpp"
 #include "player/s98player.hpp"
 #include "player/spcplayer.hpp"
 #include "player/vgmplayer.hpp"
@@ -16,6 +17,7 @@ VGMSong::VGMSong() {
 	player.RegisterPlayerEngine(new DROPlayer);
 	player.RegisterPlayerEngine(new GYMPlayer);
 	player.RegisterPlayerEngine(new SPCPlayer);
+	player.RegisterPlayerEngine(new NSFPlayer);
 	player.SetFileReqCallback(on_file_request, this); // Reaches only the engines registered above.
 }
 
@@ -78,4 +80,24 @@ bool VGMSong::load(const PackedByteArray &p_data, uint32_t p_sample_rate) {
 bool VGMSong::reload() {
 	const PackedByteArray current = data;
 	return load(current, sample_rate);
+}
+
+// The engine is known by its type code: godot-cpp builds without RTTI, so there is no dynamic_cast.
+int VGMSong::get_song_count(PlayerBase *p_engine) {
+	return p_engine->GetPlayerType() == FCC_NSF ? static_cast<NSFPlayer *>(p_engine)->GetSongCount() : 1;
+}
+
+int VGMSong::get_current_song(PlayerBase *p_engine) {
+	return p_engine->GetPlayerType() == FCC_NSF ? static_cast<NSFPlayer *>(p_engine)->GetCurSong() : 0;
+}
+
+bool VGMSong::select_song(PlayerBase *p_engine, int p_song) {
+	if (p_song < 0 || p_song >= get_song_count(p_engine)) {
+		return false;
+	}
+	if (p_engine->GetPlayerType() != FCC_NSF) {
+		return true; // The only song.
+	}
+	NSFPlayer *nsf = static_cast<NSFPlayer *>(p_engine);
+	return nsf->GetCurSong() == p_song || nsf->SelectSong((UINT16)p_song) == 0;
 }

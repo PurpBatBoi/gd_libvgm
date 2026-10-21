@@ -13,8 +13,8 @@ extends Control
 @onready var time_label: Label = %TimeLabel
 @onready var drop_label: Label = %DropLabel
 
-const SONG_EXTENSIONS := ["vgm", "vgz", "s98", "dro", "gym", "spc"]
-const DROP_HINT := "Drop a song file here (.vgz .vgm .s98 .dro .gym .spc)"
+const SONG_EXTENSIONS := ["vgm", "vgz", "s98", "dro", "gym", "spc", "nsf", "nsfe"]
+const DROP_HINT := "Drop a song file here (.vgz .vgm .s98 .dro .gym .spc .nsf .nsfe)"
 
 var dragging := false
 var process_cpu := -1.0 # Share of one core; -1 where unsupported.
@@ -34,7 +34,11 @@ func _process(_delta: float) -> void:
 	if song == null:
 		title_label.text = "Assign a VGMStream to AudioStreamPlayer"
 		return
-	title_label.text = song.get_song_tags().get("TITLE", "(untitled)")
+	var tags := song.get_song_tags()
+	var title: String = tags.get("TITLE", tags.get("GAME", "(untitled)")) # An NSF names its game, not its songs.
+	if song.get_track_count() > 1:
+		title += "   [track %d / %d, P and N change it]" % [song.track + 1, song.get_track_count()]
+	title_label.text = title
 
 	# A finished song leaves the player inactive, and get_stream_playback() errors then.
 	var playback: VGMStreamPlayback = player.get_stream_playback() as VGMStreamPlayback if player.has_stream_playback() else null
@@ -62,6 +66,23 @@ func _process(_delta: float) -> void:
 	if not dragging:
 		timeline.value = player.get_playback_position()
 	time_label.text = "%s / %s" % [_format_time(timeline.value), _format_time(timeline.max_value)]
+
+
+## P and N pick the previous and next track of a file that holds several (an NSF). The stream restarts the playing song itself.
+func _input(event: InputEvent) -> void:
+	var song := player.stream as VGMStream
+	if song == null or song.get_track_count() < 2 or not event is InputEventKey or not event.pressed or event.echo:
+		return
+	var step := 0
+	if event.keycode == KEY_N:
+		step = 1
+	elif event.keycode == KEY_P:
+		step = -1
+	if step == 0:
+		return
+	song.track = posmod(song.track + step, song.get_track_count())
+	if not player.playing:
+		player.play()
 
 
 ## Plays the first dropped file that loads as a song. The whole window accepts drops.

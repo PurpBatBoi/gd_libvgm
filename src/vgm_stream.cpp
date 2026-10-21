@@ -121,6 +121,8 @@ void VGMStream::set_data(const PackedByteArray &p_data) {
 	format_version = String();
 	loop_start = 0.0;
 	loop_length = 0.0;
+	track_count = 0;
+	int default_track = 0;
 	std::vector<DeviceSettings> device_settings;
 
 	VGMSong song;
@@ -133,7 +135,7 @@ void VGMStream::set_data(const PackedByteArray &p_data) {
 				ERR_PRINT("VGMStream: the song uses chips with no permissively licensed core, which this build leaves out: " + unsupported + ".");
 			}
 		} else {
-			ERR_PRINT("VGMStream: data is not a file format supported by libvgm (VGM/VGZ, S98, DRO, GYM, SPC).");
+			ERR_PRINT("VGMStream: data is not a file format supported by libvgm (VGM/VGZ, S98, DRO, GYM, SPC, NSF/NSFe).");
 		}
 	}
 
@@ -143,21 +145,12 @@ void VGMStream::set_data(const PackedByteArray &p_data) {
 
 		PLR_SONG_INFO song_info;
 		if (!engine->GetSongInfo(song_info)) {
-			has_loop = song_info.loopTick != (UINT32)-1;
 			format = fcc_to_string(song_info.format);
 			format_version = vformat("%X.%02X", song_info.fileVerMaj, song_info.fileVerMin);
 		}
-		for (const char *const *tag = engine->GetTags(); tag && *tag; tag += 2) {
-			if (tag[1] && tag[1][0]) {
-				tags[String::utf8(tag[0])] = String::utf8(tag[1]);
-			}
-		}
-		length = MAX(player.GetTotalTime(PLAYTIME_LOOP_EXCL), 0.0);
-		if (has_loop) {
-			// PLR_SONG_INFO::loopTick is the loop's length, not its start. The probe plays at speed 1, so these are file times.
-			loop_length = engine->Tick2Second(engine->GetLoopTicks());
-			loop_start = engine->Tick2Second(engine->GetTotalTicks() - engine->GetLoopTicks());
-		}
+		track_count = VGMSong::get_song_count(engine);
+		default_track = VGMSong::get_current_song(engine);
+		read_track_info(player);
 
 		// Started devices report their actual core and linked-device configs.
 		player.Start();
@@ -218,9 +211,46 @@ void VGMStream::set_data(const PackedByteArray &p_data) {
 		}
 	}
 
-	modify_settings([&](Settings &s) { s.devices = device_settings; });
+	modify_settings([&](Settings &s) {
+		s.devices = device_settings;
+		s.track.reset();
+		s.default_track = default_track;
+	});
 	notify_property_list_changed();
 	emit_signal("parameter_list_changed");
+}
+
+void VGMStream::read_track_info(PlayerA &p_player) {
+	PlayerBase *engine = p_player.GetPlayer();
+	tags.clear();
+	length = 0.0;
+	has_loop = false;
+	loop_start = 0.0;
+	loop_length = 0.0;
+
+	PLR_SONG_INFO song_info;
+	if (!engine->GetSongInfo(song_info)) {
+		has_loop = song_info.loopTick != (UINT32)-1;
+	}
+	for (const char *const *tag = engine->GetTags(); tag && *tag; tag += 2) {
+		if (tag[1] && tag[1][0]) {
+			tags[String::utf8(tag[0])] = String::utf8(tag[1]);
+		}
+	}
+	length = MAX(p_player.GetTotalTime(PLAYTIME_LOOP_EXCL), 0.0);
+	if (has_loop) {
+		// PLR_SONG_INFO::loopTick is the loop's length, not its start. The probe plays at speed 1, so these are file times.
+		loop_length = engine->Tick2Second(engine->GetLoopTicks());
+		loop_start = engine->Tick2Second(engine->GetTotalTicks() - engine->GetLoopTicks());
+	}
+}
+
+void VGMStream::refresh_track_info(int p_track) {
+	VGMSong song;
+	if (data.is_empty() || !song.load(data, PROBE_SAMPLE_RATE) || !VGMSong::select_song(song.player.GetPlayer(), p_track)) {
+		return;
+	}
+	read_track_info(song.player);
 }
 
 PackedByteArray VGMStream::get_data() const {
@@ -250,6 +280,7 @@ VGMStream::PlaybackSettings VGMStream::get_playback_settings() const {
 	resolved.fade_time = stored.fade_time.value_or(defaults.fade_time);
 	resolved.ignore_song_volume = stored.ignore_song_volume.value_or(defaults.ignore_song_volume);
 	resolved.resampler_mode = stored.resampler_mode.value_or((ResamplerMode)defaults.resampler_mode);
+	resolved.track = stored.track.value_or(stored.default_track);
 	resolved.devices = stored.devices;
 	return resolved;
 }
@@ -309,12 +340,33 @@ VGMStream::ResamplerMode VGMStream::get_resampler_mode() const {
 	return settings.resampler_mode.value_or((ResamplerMode)VGMProjectSettings::get().resampler_mode);
 }
 
+int VGMStream::get_track_count() const {
+	return track_count;
+}
+
+void VGMStream::set_track(int p_track) {
+	ERR_FAIL_INDEX_MSG(p_track, track_count, "Track is out of range; see get_track_count().");
+	refresh_track_info(p_track); // So that the length and tags are right when `changed` is emitted.
+	modify_settings([&](Settings &s) { set_override(s.track, p_track, s.default_track); });
+}
+
+int VGMStream::get_track() const {
+	return settings.track.value_or(settings.default_track);
+}
+
 void VGMStream::set_overrides(const Dictionary &p_overrides) {
+	// Saved tracks only apply to the song they were saved with.
+	const int saved_track = p_overrides.get("track", -1);
+	const bool has_track = saved_track >= 0 && saved_track < track_count;
+	if (track_count > 1) {
+		refresh_track_info(has_track ? saved_track : settings.default_track); // Before `changed` is emitted.
+	}
 	modify_settings([&](Settings &s) {
 		s.loop_count.reset();
 		s.fade_time.reset();
 		s.ignore_song_volume.reset();
 		s.resampler_mode.reset();
+		s.track.reset();
 		if (p_overrides.has("loop_count")) {
 			s.loop_count = MAX((int)p_overrides["loop_count"], 0);
 		}
@@ -326,6 +378,9 @@ void VGMStream::set_overrides(const Dictionary &p_overrides) {
 		}
 		if (p_overrides.has("resampler_mode")) {
 			s.resampler_mode = (ResamplerMode)CLAMP((int)p_overrides["resampler_mode"], 0, 2);
+		}
+		if (has_track) {
+			s.track = saved_track;
 		}
 	});
 }
@@ -343,6 +398,9 @@ Dictionary VGMStream::get_overrides() const {
 	}
 	if (settings.resampler_mode) {
 		result["resampler_mode"] = (int)*settings.resampler_mode;
+	}
+	if (settings.track) {
+		result["track"] = *settings.track;
 	}
 	return result;
 }
@@ -586,10 +644,14 @@ bool VGMStream::_property_can_revert(const StringName &p_name) const {
 	int device;
 	String field;
 	Variant unused;
-	return get_project_default(p_name, unused) || parse_chip_property(p_name, device, field);
+	return p_name == StringName("track") || get_project_default(p_name, unused) || parse_chip_property(p_name, device, field);
 }
 
 bool VGMStream::_property_get_revert(const StringName &p_name, Variant &r_property) const {
+	if (p_name == StringName("track")) {
+		r_property = settings.default_track;
+		return true;
+	}
 	if (get_project_default(p_name, r_property)) {
 		return true;
 	}
@@ -608,6 +670,18 @@ bool VGMStream::_property_get_revert(const StringName &p_name, Variant &r_proper
 		return false;
 	}
 	return true;
+}
+
+// The track is only offered for a file with several songs, and only up to its last one.
+void VGMStream::_validate_property(PropertyInfo &p_property) const {
+	if (p_property.name != StringName("track")) {
+		return;
+	}
+	if (track_count < 2) {
+		p_property.usage = PROPERTY_USAGE_NONE;
+	} else {
+		p_property.hint_string = vformat("0,%d,1", track_count - 1);
+	}
 }
 
 TypedArray<Dictionary> VGMStream::_get_parameter_list() const {
@@ -660,6 +734,9 @@ void VGMStream::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("get_ignore_song_volume"), &VGMStream::get_ignore_song_volume);
 	ClassDB::bind_method(D_METHOD("set_resampler_mode", "mode"), &VGMStream::set_resampler_mode);
 	ClassDB::bind_method(D_METHOD("get_resampler_mode"), &VGMStream::get_resampler_mode);
+	ClassDB::bind_method(D_METHOD("get_track_count"), &VGMStream::get_track_count);
+	ClassDB::bind_method(D_METHOD("set_track", "track"), &VGMStream::set_track);
+	ClassDB::bind_method(D_METHOD("get_track"), &VGMStream::get_track);
 	ClassDB::bind_method(D_METHOD("set_device_settings", "settings"), &VGMStream::set_device_settings);
 	ClassDB::bind_method(D_METHOD("get_device_settings"), &VGMStream::get_device_settings);
 	ClassDB::bind_method(D_METHOD("set_overrides", "overrides"), &VGMStream::set_overrides);
@@ -691,6 +768,8 @@ void VGMStream::_bind_methods() {
 	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "fade_time", PROPERTY_HINT_RANGE, "0,30,0.1,or_greater,suffix:s", PROPERTY_USAGE_EDITOR), "set_fade_time", "get_fade_time");
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "ignore_song_volume", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_EDITOR), "set_ignore_song_volume", "get_ignore_song_volume");
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "resampler_mode", PROPERTY_HINT_ENUM, "High Quality,Low Quality,LQ Down HQ Up", PROPERTY_USAGE_EDITOR), "set_resampler_mode", "get_resampler_mode");
+	// Only shown for a file with several songs (see _validate_property); saved through `overrides` like the settings above.
+	ADD_PROPERTY(PropertyInfo(Variant::INT, "track", PROPERTY_HINT_RANGE, "0,0,1", PROPERTY_USAGE_EDITOR), "set_track", "get_track");
 	ADD_PROPERTY(PropertyInfo(Variant::DICTIONARY, "overrides", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NO_EDITOR), "set_overrides", "get_overrides");
 	ADD_PROPERTY(PropertyInfo(Variant::ARRAY, "device_settings", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NO_EDITOR), "set_device_settings", "get_device_settings");
 
